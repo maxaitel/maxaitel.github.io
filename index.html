@@ -54,7 +54,23 @@
 </nav> 
 </div>
 <br><br>
-<img class="img-fluid" src="./assets/png/horse.jpg" alt="A hamster warming up a spoon containing nothing bad">
+<img class="img-fluid" id="randomImage" src="./assets/png/horse.jpg" alt="A hamster warming up a spoon containing nothing bad">
+
+<script>
+    function getRandomImage() {
+        const directoryPath = './assets/png/';  // Directory where images are stored
+        let images = ['horse', 'cat', 'dog', 'bird'];  // Add the base names of your images here without extension
+
+        let randomIndex = Math.floor(Math.random() * images.length);  // Generate a random index
+
+        return `${directoryPath}${images[randomIndex]}.jpg`;  // Return full path to image
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        const imgElement = document.getElementById('randomImage');
+        imgElement.src = getRandomImage();  // Set the source of image dynamically
+    });
+</script>
 <div id="meth">
 <pre>
   
@@ -64,8 +80,8 @@
   things i like doing:
   overwatch
   planes 
-  programming stuff (check out my discord bot <a href="https://discordapp.com/oauth2/authorize?&client_id=779811073498808341&scope=bot+applications.commands&permissions=8">Link</a> here)
-  ROBOTS (FIRST and other)
+  programming stuff (check out my <a href="https://discordapp.com/oauth2/authorize?&client_id=779811073498808341&scope=bot+applications.commands&permissions=8">discord bot</a>)
+  robots (FIRST and other)
   sailing
   i really like cool animations like <a href="https://www.youtube.com/watch?v=O7hgjuFfn3A">this one</a>
 
@@ -78,7 +94,6 @@
 <div id="thingsilike">
 <pre>
 <strong>here are some things i like!</strong><br>
-
   <a href="https://miamibeachbots.org">My FRC team that i mentor now.</a><br>
   <a href="https://www.youtube.com/watch?v=Cu2W4hxMytk">Look at this cool guy and his plane.</a><br>
   <a href="https://en.wikipedia.org/wiki/DEF_CON">DEF CON, a yearly hacker convention in vegas i try to always go to.</a></pre>
@@ -89,7 +104,8 @@
 <strong>these are my socials:</strong><br>
   discord - tankplayer<br>
   <a href="https://www.twitch.tv/maxman126">twitch</a><br>
-  <a href="https://x.com/aitelmax?lang=en">twitter</a></pre>
+  <a href="https://x.com/aitelmax?lang=en">twitter</a><br>
+  <a href="https://www.linkedin.com/in/max-aitel-b09498220/">linked-in</a></pre>
 </div><br>
 <hr>
 <div class="container mt-3">
