@@ -57,19 +57,24 @@
 <img class="img-fluid" id="randomImage" src="./assets/png/horse.jpg" alt="A hamster warming up a spoon containing nothing bad">
 
 <script>
-    function getRandomImage() {
-        const directoryPath = './assets/png/';  // Directory where images are stored
-        let images = ['horse', 'cat', 'dog', 'bird'];  // Add the base names of your images here without extension
+  function getRandomImage() {
+      const directoryPath = './assets/png/';  // Directory where images are stored
+      let imageFilenames = [
+          'rt.png',
+          'horse.jpg',
+          'bigrat.jpg',
+          'me.png'
+      ];  // Add the full filenames of your images here
 
-        let randomIndex = Math.floor(Math.random() * images.length);  // Generate a random index
+      let randomIndex = Math.floor(Math.random() * imageFilenames.length);  // Generate a random index
 
-        return `${directoryPath}${images[randomIndex]}.jpg`;  // Return full path to image
-    }
+      return `${directoryPath}${imageFilenames[randomIndex]}`;  // Return full path to image
+  }
 
-    document.addEventListener('DOMContentLoaded', function () {
-        const imgElement = document.getElementById('randomImage');
-        imgElement.src = getRandomImage();  // Set the source of image dynamically
-    });
+  document.addEventListener('DOMContentLoaded', function () {
+      const imgElement = document.getElementById('randomImage');
+      imgElement.src = getRandomImage();  // Set the source of image dynamically
+  });
 </script>
 <div id="meth">
 <pre>
