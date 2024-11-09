@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MP4/MP3 Downloader</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.6.2/axios.min.js"></script>
+    <style>
+        :root {
+            --background: #000000;
+            --text: #ffffff;
+            --button-bg: #1a1a1a;
+            --button-hover: #2a2a2a;
+            --input-bg: rgba(255, 255, 255, 0.05);
+            --input-border: #333;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: var(--background);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+            font-size: 14px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 480px;
+            text-align: center;
+        }
+
+        .max-logo {
+            fill: white;
+            opacity: 0.9;
+            width: 60px;
+            height: 60px;
+            margin-bottom: 1.5rem;
+        }
+
+        .input-wrapper {
+            position: relative;
+            margin-bottom: 0.75rem;
+        }
+
+        .input-container {
+            display: flex;
+            align-items: center;
+            background: var(--input-bg);
+            border: 1px solid var(--input-border);
+            border-radius: 6px;
+            padding: 0.2rem;
+        }
+
+        .link-icon {
+            opacity: 0.3;
+            width: 16px;
+            height: 16px;
+            margin-left: 0.5rem;
+        }
+
+        input[type="url"] {
+            flex: 1;
+            background: none;
+            border: none;
+            color: var(--text);
+            font-size: 0.9rem;
+            padding: 0.4rem;
+            min-width: 0;
+        }
+
+        input[type="url"]::placeholder {
+            color: rgba(255, 255, 255, 0.3);
+            font-size: 0.9rem;
+        }
+
+        input[type="url"]:focus {
+            outline: none;
+        }
+
+        .clear-button {
+            opacity: 0.3;
+            cursor: pointer;
+            padding: 0.4rem;
+            display: none;
+        }
+
+        .clear-button:hover {
+            opacity: 0.6;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 0.4rem;
+            margin-left: 0.4rem;
+        }
+
+        .paste-button {
+            background: var(--button-bg);
+            border: none;
+            color: var(--text);
+            padding: 0.4rem 0.6rem;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            opacity: 0.8;
+        }
+
+        .download-button {
+            background: var(--button-bg);
+            border: none;
+            color: var(--text);
+            padding: 0.4rem 0.6rem;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            opacity: 0.8;
+            display: none;
+        }
+
+        .paste-button:hover,
+        .download-button:hover {
+            opacity: 1;
+            background: var(--button-hover);
+        }
+
+        .buttons {
+            display: flex;
+            gap: 0.35rem;
+            justify-content: center;
+        }
+
+        .mode-button {
+            background: var(--button-bg);
+            color: var(--text);
+            border: none;
+            padding: 0.4rem 0.8rem;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: background 0.15s;
+            display: flex;
+            align-items: center;
+            gap: 0.35rem;
+            opacity: 0.8;
+        }
+
+        .mode-button:hover {
+            background: var(--button-hover);
+            opacity: 1;
+        }
+
+        .mode-button.active {
+            background: var(--button-hover);
+            opacity: 1;
+        }
+
+        .status {
+            margin-top: 0.75rem;
+            padding: 0.5rem;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            display: none;
+            background: #1a1a1a;
+            opacity: 0.9;
+        }
+
+        .status.visible {
+            display: block;
+        }
+
+        .status.error { background: #442222; }
+        .status.success { background: #224422; }
+        .status.loading { background: #222244; }
+        .services-button {
+            position: fixed;
+            top: 1rem;
+            right: 1rem;
+            font-size: 0.8rem;
+            opacity: 0.5;
+            background: none;
+            border: none;
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .services-button:hover {
+            opacity: 0.8;
+        }
+
+        .services-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            align-items: start;
+            justify-content: center;
+            padding-top: 3rem;
+        }
+
+        .services-modal.visible {
+            display: flex;
+        }
+
+        .services-content {
+            background: #1a1a1a;
+            border-radius: 8px;
+            padding: 1.5rem;
+            width: 90%;
+            max-width: 500px;
+            position: relative;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+        }
+
+        .services-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin: 1rem 0;
+        }
+
+        .service {
+            background: #2a2a2a;
+            padding: 0.4rem 0.8rem;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            color: #fff;
+            opacity: 0.8;
+        }
+
+        .disclaimer {
+            font-size: 0.75rem;
+            opacity: 0.5;
+            margin-top: 1rem;
+            text-align: center;
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: none;
+            border: none;
+            color: white;
+            opacity: 0.5;
+            cursor: pointer;
+            font-size: 1rem;
+            padding: 0.5rem;
+        }
+
+        .close-modal:hover {
+            opacity: 0.8;
+        }
+    </style>
+</head>
+<body>
+    <button class="services-button" onclick="toggleServices()">
+        <span>✕</span> supported services
+    </button>
+
+    <div class="services-modal" id="servicesModal" onclick="closeModalOnBackground(event)">
+        <div class="services-content">
+            <button class="close-modal" onclick="toggleServices()">✕</button>
+            <div class="services-list">
+                <div class="service">bilibili</div>
+                <div class="service">bluesky</div>
+                <div class="service">dailymotion</div>
+                <div class="service">facebook</div>
+                <div class="service">instagram</div>
+                <div class="service">loom</div>
+                <div class="service">ok</div>
+                <div class="service">pinterest</div>
+                <div class="service">reddit</div>
+                <div class="service">rutube</div>
+                <div class="service">snapchat</div>
+                <div class="service">soundcloud</div>
+                <div class="service">streamable</div>
+                <div class="service">tiktok</div>
+                <div class="service">tumblr</div>
+                <div class="service">twitch</div>
+                <div class="service">twitter</div>
+                <div class="service">vine</div>
+                <div class="service">vimeo</div>
+                <div class="service">vk</div>
+                <div class="service">youtube</div>
+            </div>
+            <div class="disclaimer">
+                Not affiliated with any of the services listed above.
+            </div>
+        </div>
+    </div>
+    <div class="container">
+        <svg class="max-logo" viewBox="0 0 100 100">
+            <path d="M50 0 C22.4 0 0 22.4 0 50 C0 77.6 22.4 100 50 100 C77.6 100 100 77.6 100 50 C100 22.4 77.6 0 50 0 Z M35 25 L65 25 C70 25 74 29 74 34 L74 66 C74 71 70 75 65 75 L35 75 C30 75 26 71 26 66 L26 34 C26 29 30 25 35 25 Z" fill="white"/>
+            <circle cx="40" cy="45" r="4"/>
+            <circle cx="60" cy="45" r="4"/>
+            <path d="M45 60 Q50 65 55 60" fill="none" stroke="black" stroke-width="1.5"/>
+        </svg>
+
+        <div class="input-wrapper">
+            <div class="input-container">
+                <svg class="link-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
+                    <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
+                </svg>
+                <input type="url" id="url" placeholder="paste the link here" required>
+                <div class="clear-button" id="clearButton">✕</div>
+                <div class="action-buttons">
+                    <button class="download-button" id="downloadButton">>></button>
+                    <button class="paste-button" id="pasteButton">paste</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="buttons">
+            <button class="mode-button active" data-mode="auto">
+                <span>⚡</span> auto
+            </button>
+            <button class="mode-button" data-mode="audio">
+                <span>🎵</span> audio
+            </button>
+            <button class="mode-button" data-mode="mute">
+                <span>🔇</span> mute
+            </button>
+        </div>
+
+        <div id="status" class="status"></div>
+    </div>
+
+    <script>
+        const API_URL = 'https://downloader.studentsdadeschools.net';
+        const API_KEY = 'c5c6a395-c458-4ac2-9d20-bb80e869dd2b';
+
+        const urlInput = document.getElementById('url');
+        const clearButton = document.getElementById('clearButton');
+        const pasteButton = document.getElementById('pasteButton');
+        const downloadButton = document.getElementById('downloadButton');
+
+        // Show/hide buttons based on input content
+        urlInput.addEventListener('input', () => {
+            const hasValue = urlInput.value.trim().length > 0;
+            clearButton.style.display = hasValue ? 'block' : 'none';
+            downloadButton.style.display = hasValue ? 'block' : 'none';
+        });
+
+        // Clear input
+        clearButton.addEventListener('click', () => {
+            urlInput.value = '';
+            clearButton.style.display = 'none';
+            downloadButton.style.display = 'none';
+        });
+
+        // Handle enter key
+        urlInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter' && urlInput.value.trim()) {
+                download();
+            }
+        });
+
+        // Download button click
+        downloadButton.addEventListener('click', () => {
+            if (urlInput.value.trim()) {
+                download();
+            }
+        });
+
+        // Paste button functionality
+        pasteButton.addEventListener('click', async () => {
+            try {
+                const text = await navigator.clipboard.readText();
+                urlInput.value = text;
+                const hasValue = text.trim().length > 0;
+                clearButton.style.display = hasValue ? 'block' : 'none';
+                downloadButton.style.display = hasValue ? 'block' : 'none';
+            } catch (err) {
+                showStatus('Please grant clipboard permission', 'error');
+            }
+        });
+
+        // Mode button handling
+        const modeButtons = document.querySelectorAll('.mode-button');
+        let currentMode = 'auto';
+
+        modeButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                modeButtons.forEach(btn => btn.classList.remove('active'));
+                button.classList.add('active');
+                currentMode = button.dataset.mode;
+            });
+        });
+
+        // Handle paste event
+        urlInput.addEventListener('paste', () => {
+            setTimeout(() => {
+                const hasValue = urlInput.value.trim().length > 0;
+                clearButton.style.display = hasValue ? 'block' : 'none';
+                downloadButton.style.display = hasValue ? 'block' : 'none';
+            }, 100);
+        });
+
+        async function download() {
+            if (!urlInput.value) {
+                showStatus('Please enter a valid URL', 'error');
+                return;
+            }
+
+            try {
+                showStatus('Processing...', 'loading');
+
+                const response = await axios.post(API_URL, {
+                    url: urlInput.value,
+                    downloadMode: currentMode,
+                    videoQuality: '1080',
+                    filenameStyle: 'pretty',
+                    youtubeVideoCodec: 'h264'
+                }, {
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json',
+                        'Authorization': `Api-Key ${API_KEY}`
+                    }
+                });
+
+                if (response.data.status === 'error') {
+                    throw new Error(response.data.error.code);
+                }
+
+                if (response.data.status === 'redirect' || response.data.status === 'tunnel') {
+                    const downloadUrl = response.data.url;
+                    const filename = response.data.filename;
+
+                    const link = document.createElement('a');
+                    link.href = downloadUrl;
+                    link.download = filename;
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+
+                    showStatus('Download started', 'success');
+                    urlInput.value = '';
+                    clearButton.style.display = 'none';
+                    downloadButton.style.display = 'none';
+                }
+            } catch (error) {
+                console.error('Download error:', error);
+                showStatus(`Error: ${error.message || 'Failed to download'}`, 'error');
+            }
+        }
+
+        function showStatus(message, type) {
+            const statusDiv = document.getElementById('status');
+            statusDiv.textContent = message;
+            statusDiv.className = `status visible ${type || ''}`;
+        }
+
+        function toggleServices() {
+            const modal = document.getElementById('servicesModal');
+            modal.classList.toggle('visible');
+            const button = document.querySelector('.services-button span');
+            button.textContent = modal.classList.contains('visible') ? '✕' : '✕';
+        }
+
+        function closeModalOnBackground(event) {
+            if (event.target.className === 'services-modal visible') {
+                toggleServices();
+            }
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                const modal = document.getElementById('servicesModal');
+                if (modal.classList.contains('visible')) {
+                    toggleServices();
+                }
+            }
+        });
+    </script>
+</body>
+</html>
