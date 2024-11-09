@@ -28,6 +28,7 @@
       border-radius: 4px;
       padding: 0.5rem;
       transition: transform 0.2s;
+      cursor: pointer;
     }
 
     .gallery-item:hover {
@@ -49,6 +50,31 @@
     pre {
       color: white;
       margin: 0;
+    }
+
+    /* Modal styles */
+    .modal-content {
+      background-color: #212529;
+      color: white;
+    }
+
+    .modal-header {
+      border-bottom: 1px solid #373b3e;
+    }
+
+    .modal-footer {
+      border-top: 1px solid #373b3e;
+    }
+
+    .modal-image {
+      max-width: 100%;
+      max-height: 80vh;
+      margin: 0 auto;
+      display: block;
+    }
+
+    .btn-close {
+      filter: invert(1);
     }
   </style>
 </head>
@@ -83,13 +109,26 @@
 
   <div class="gallery" id="gallery"></div>
 
+  <!-- Modal -->
+  <div class="modal fade" id="imageModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="modalTitle"></h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body text-center">
+          <img id="modalImage" src="" alt="" class="modal-image">
+        </div>
+      </div>
+    </div>
+  </div>
+
   <script>
-    // List of all your stickers - you'll need to update this array when you add new stickers
     const stickers = [
       'NATO.png',
       't80 tank v2.png',
       'this machione kills.png',
-      // Add more sticker filenames here
     ];
 
     function loadGallery() {
@@ -106,6 +145,14 @@
             <pre>${filename}</pre>
           </div>
         `;
+        
+        // Add click handler for modal
+        item.addEventListener('click', () => {
+          const modal = new bootstrap.Modal(document.getElementById('imageModal'));
+          document.getElementById('modalTitle').textContent = filename;
+          document.getElementById('modalImage').src = `../assets/stickers/${sticker}`;
+          modal.show();
+        });
         
         gallery.appendChild(item);
       });
