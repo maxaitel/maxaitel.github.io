@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>3D Cloud Simulation with Physics</title>
+  <style>
+    /* Remove default margins and ensure the canvas fills the screen */
+    body {
+      margin: 0;
+      overflow: hidden;
+    }
+    canvas {
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <!-- The simulation is created entirely via JavaScript -->
+  <script type="module">
+    // Import Three.js and OrbitControls from a CDN with absolute URLs.
+    import * as THREE from 'https://unpkg.com/three@0.150.1/build/three.module.js';
+    import { OrbitControls } from 'https://unpkg.com/three@0.150.1/examples/jsm/controls/OrbitControls.js';
+
+    // ----------------------
+    // Scene, Camera, Renderer
+    // ----------------------
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x87ceeb); // Sky-blue background
+
+    const camera = new THREE.PerspectiveCamera(
+      60,
+      window.innerWidth / window.innerHeight,
+      0.1,
+      1000
+    );
+    camera.position.set(0, 20, 50);
+
+    const renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    document.body.appendChild(renderer.domElement);
+
+    // OrbitControls lets you rotate/zoom the view with your mouse
+    const controls = new OrbitControls(camera, renderer.domElement);
+
+    window.addEventListener('resize', () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+
+    // ----------------------
+    // Create a Cloud Puff Texture
+    // ----------------------
+    // This function creates a circular, radially fading texture to simulate a soft cloud puff.
+    function createCloudTexture() {
+      const size = 128;
+      const canvas = document.createElement('canvas');
+      canvas.width = size;
+      canvas.height = size;
+      const ctx = canvas.getContext('2d');
+
+      // Create a radial gradient: opaque in the center, transparent at the edges.
+      const gradient = ctx.createRadialGradient(
+        size / 2, size / 2, 0,
+        size / 2, size / 2, size / 2
+      );
+      gradient.addColorStop(0, 'rgba(255, 255, 255, 0.8)');
+      gradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
+      ctx.fillStyle = gradient;
+      ctx.fillRect(0, 0, size, size);
+
+      const texture = new THREE.Texture(canvas);
+      texture.needsUpdate = true;
+      return texture;
+    }
+
+    const cloudTexture = createCloudTexture();
+    const cloudMaterial = new THREE.SpriteMaterial({
+      map: cloudTexture,
+      transparent: true,
+      opacity: 0.8,
+      depthWrite: false
+    });
+
+    // ----------------------
+    // Simple Physics Classes
+    // ----------------------
+
+    // Particle class represents a point mass in 3D space.
+    class Particle {
+      constructor(position) {
+        this.position = position.clone();
+        this.velocity = new THREE.Vector3();
+        this.acceleration = new THREE.Vector3();
+        this.mass = 1;
+        this.sprite = null; // Visual representation will be a Three.js Sprite.
+      }
+      // Apply a force (F = m · a)
+      applyForce(force) {
+        this.acceleration.add(force.clone().divideScalar(this.mass));
+      }
+      // Update position and velocity using simple Euler integration.
+      update(dt) {
+        this.velocity.add(this.acceleration.clone().multiplyScalar(dt));
+        this.position.add(this.velocity.clone().multiplyScalar(dt));
+        // Apply damping to simulate drag.
+        this.velocity.multiplyScalar(0.98);
+        this.acceleration.set(0, 0, 0);
+      }
+    }
+
+    // Spring connects two particles and applies a force to maintain a rest length.
+    class Spring {
+      constructor(p1, p2, restLength, stiffness) {
+        this.p1 = p1;
+        this.p2 = p2;
+        this.restLength = restLength;
+        this.stiffness = stiffness;
+      }
+      apply() {
+        const diff = new THREE.Vector3().subVectors(this.p2.position, this.p1.position);
+        const currentLength = diff.length();
+        const displacement = currentLength - this.restLength;
+        if (currentLength !== 0) diff.normalize();
+        const force = diff.multiplyScalar(this.stiffness * displacement);
+        this.p1.applyForce(force);
+        this.p2.applyForce(force.clone().multiplyScalar(-1));
+      }
+    }
+
+    // ----------------------
+    // Cloud Class (Spring–Mass System)
+    // ----------------------
+    // Each cloud is constructed from several particles (visualized as sprites) connected by springs.
+    class Cloud {
+      constructor(position, particleCount, scene) {
+        this.particles = [];
+        this.springs = [];
+        // Create particles with random offsets around the specified position.
+        for (let i = 0; i < particleCount; i++) {
+          const offset = new THREE.Vector3(
+            (Math.random() - 0.5) * 20,
+            (Math.random() - 0.5) * 10,
+            (Math.random() - 0.5) * 20
+          );
+          const p = new Particle(position.clone().add(offset));
+          // Create a sprite to represent the cloud puff.
+          p.sprite = new THREE.Sprite(cloudMaterial);
+          const scale = 5 + Math.random() * 5;
+          p.sprite.scale.set(scale, scale, 1);
+          p.sprite.position.copy(p.position);
+          scene.add(p.sprite);
+          this.particles.push(p);
+        }
+        // Create a nearly fixed central particle.
+        this.center = new Particle(position.clone());
+        this.center.mass = 1000; // High mass so it barely moves.
+        // Connect each particle to the center with a spring.
+        for (const p of this.particles) {
+          const restLength = p.position.distanceTo(this.center.position);
+          const spring = new Spring(p, this.center, restLength, 0.2);
+          this.springs.push(spring);
+        }
+        // Additionally, connect nearby particles with springs for extra cohesion.
+        for (let i = 0; i < this.particles.length; i++) {
+          for (let j = i + 1; j < this.particles.length; j++) {
+            const p1 = this.particles[i];
+            const p2 = this.particles[j];
+            const distance = p1.position.distanceTo(p2.position);
+            if (distance < 15) {
+              const spring = new Spring(p1, p2, distance, 0.1);
+              this.springs.push(spring);
+            }
+          }
+        }
+      }
+      // Apply a wind force to all particles in the cloud.
+      applyWind(windForce) {
+        for (const p of this.particles) {
+          p.applyForce(windForce);
+        }
+      }
+      // Update the physics simulation and update each sprite’s position.
+      update(dt) {
+        // Apply all spring forces.
+        for (const spring of this.springs) {
+          spring.apply();
+        }
+        // Update each particle.
+        for (const p of this.particles) {
+          p.update(dt);
+          p.sprite.position.copy(p.position);
+        }
+      }
+    }
+
+    // ----------------------
+    // Build the Scene
+    // ----------------------
+
+    // Create several clouds at different positions.
+    const clouds = [];
+    for (let i = 0; i < 5; i++) {
+      const pos = new THREE.Vector3(
+        (Math.random() - 0.5) * 50,
+        20 + Math.random() * 10,
+        (Math.random() - 0.5) * 50
+      );
+      const cloud = new Cloud(pos, 20, scene);
+      clouds.push(cloud);
+    }
+
+    // (Optional) Add a ground plane for context.
+    const groundGeo = new THREE.PlaneGeometry(200, 200);
+    const groundMat = new THREE.MeshPhongMaterial({
+      color: 0x228B22,
+      side: THREE.DoubleSide
+    });
+    const ground = new THREE.Mesh(groundGeo, groundMat);
+    ground.rotation.x = -Math.PI / 2;
+    ground.position.y = 0;
+    scene.add(ground);
+
+    // Add lighting to the scene.
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.7);
+    scene.add(ambientLight);
+    const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+    directionalLight.position.set(50, 100, 50);
+    scene.add(directionalLight);
+
+    // ----------------------
+    // Animation Loop
+    // ----------------------
+    let lastTime = performance.now();
+    function animate() {
+      requestAnimationFrame(animate);
+      const currentTime = performance.now();
+      const dt = (currentTime - lastTime) / 1000;
+      lastTime = currentTime;
+
+      // Create a gentle wind that oscillates over time.
+      const time = currentTime * 0.001;
+      const windStrength = 2;
+      const windForce = new THREE.Vector3(
+        Math.sin(time * 0.5) * windStrength,
+        0,
+        Math.cos(time * 0.5) * windStrength
+      );
+
+      // Update each cloud: apply wind and update physics.
+      for (const cloud of clouds) {
+        cloud.applyWind(windForce);
+        cloud.update(dt);
+      }
+
+      controls.update();
+      renderer.render(scene, camera);
+    }
+    animate();
+  </script>
+</body>
+</html>

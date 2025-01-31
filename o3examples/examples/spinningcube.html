@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>3D Box with Bouncing Ball & Spinning Camera with Star Field Background</title>
+    <style>
+      body {
+        margin: 0;
+        overflow: hidden;
+        background-color: #000;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Include Three.js from a CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script>
+      let scene, camera, renderer;
+      let cube, ball;
+      // Ball velocity vector – tweak these values for different speeds
+      let ballVelocity = new THREE.Vector3(0.07, 0.05, 0.06);
+      // Dimensions for the cube and ball
+      const cubeSize = 10;
+      const ballRadius = 0.5;
+      // Variable for the camera's orbit angle
+      let cameraAngle = 0;
+
+      function init() {
+        // Create the scene
+        scene = new THREE.Scene();
+
+        // Create a star field background
+        addStars();
+
+        // Set up the camera with a perspective view
+        camera = new THREE.PerspectiveCamera(
+          75,
+          window.innerWidth / window.innerHeight,
+          0.1,
+          1000
+        );
+        // Initial camera position (will be updated in the animation)
+        camera.position.set(15, 10, 0);
+
+        // Initialize the WebGL renderer and append its canvas to the document
+        renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
+
+        // Create the cube as a wireframe so the ball inside is visible.
+        const cubeGeometry = new THREE.BoxGeometry(cubeSize, cubeSize, cubeSize);
+        const cubeEdges = new THREE.EdgesGeometry(cubeGeometry);
+        const lineMaterial = new THREE.LineBasicMaterial({ color: 0xffffff });
+        cube = new THREE.LineSegments(cubeEdges, lineMaterial);
+        scene.add(cube);
+
+        // Create the ball (a red sphere)
+        const ballGeometry = new THREE.SphereGeometry(ballRadius, 32, 32);
+        const ballMaterial = new THREE.MeshPhongMaterial({ color: 0xff0000 });
+        ball = new THREE.Mesh(ballGeometry, ballMaterial);
+        scene.add(ball);
+
+        // Add ambient and directional lighting
+        const ambientLight = new THREE.AmbientLight(0x404040); // soft light
+        scene.add(ambientLight);
+
+        const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+        directionalLight.position.set(5, 10, 7.5);
+        scene.add(directionalLight);
+
+        // Adjust the scene when the window is resized.
+        window.addEventListener("resize", onWindowResize, false);
+      }
+
+      // Function to add a star field background
+      function addStars() {
+        const starsGeometry = new THREE.BufferGeometry();
+        const starCount = 5000;
+        const starVertices = [];
+        // Create random positions for each star within a large cube
+        for (let i = 0; i < starCount; i++) {
+          const x = THREE.MathUtils.randFloatSpread(600);
+          const y = THREE.MathUtils.randFloatSpread(600);
+          const z = THREE.MathUtils.randFloatSpread(600);
+          starVertices.push(x, y, z);
+        }
+        starsGeometry.setAttribute(
+          'position',
+          new THREE.Float32BufferAttribute(starVertices, 3)
+        );
+        const starsMaterial = new THREE.PointsMaterial({ color: 0xffffff, size: 0.7 });
+        const starField = new THREE.Points(starsGeometry, starsMaterial);
+        scene.add(starField);
+      }
+
+      function onWindowResize() {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+      }
+
+      function animate() {
+        requestAnimationFrame(animate);
+
+        // Rotate the cube slightly on every frame
+        cube.rotation.x += 0.005;
+        cube.rotation.y += 0.005;
+
+        // Update the ball's position
+        ball.position.add(ballVelocity);
+
+        // Calculate the boundaries for the ball's movement (cube centered at the origin)
+        const boundary = cubeSize / 2 - ballRadius;
+
+        // Bounce off the X walls
+        if (ball.position.x > boundary || ball.position.x < -boundary) {
+          ballVelocity.x = -ballVelocity.x;
+          ball.position.x = THREE.MathUtils.clamp(ball.position.x, -boundary, boundary);
+        }
+        // Bounce off the Y walls
+        if (ball.position.y > boundary || ball.position.y < -boundary) {
+          ballVelocity.y = -ballVelocity.y;
+          ball.position.y = THREE.MathUtils.clamp(ball.position.y, -boundary, boundary);
+        }
+        // Bounce off the Z walls
+        if (ball.position.z > boundary || ball.position.z < -boundary) {
+          ballVelocity.z = -ballVelocity.z;
+          ball.position.z = THREE.MathUtils.clamp(ball.position.z, -boundary, boundary);
+        }
+
+        // Update the camera to orbit around the scene.
+        cameraAngle += 0.005; // Adjust speed as desired
+        const orbitRadius = 20; // Distance from the center
+        camera.position.x = orbitRadius * Math.sin(cameraAngle);
+        camera.position.z = orbitRadius * Math.cos(cameraAngle);
+        camera.position.y = 10; // Adjust the vertical position as desired
+
+        // Ensure the camera always looks at the center of the scene
+        camera.lookAt(0, 0, 0);
+
+        // Render the scene
+        renderer.render(scene, camera);
+      }
+
+      // Initialize everything and start the animation loop.
+      init();
+      animate();
+    </script>
+  </body>
+</html>
