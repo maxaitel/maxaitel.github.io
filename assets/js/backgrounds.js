@@ -1,15 +1,8 @@
 class BackgroundManager {
     constructor() {
-        // Ensure we're not initializing multiple times
-        if (window.bgManager) {
-            console.warn('BackgroundManager already initialized');
-            return window.bgManager;
-        }
-
         // Wait for StarField to be available
         if (!window.StarField) {
-            console.error('StarField not loaded, retrying in 1 second...');
-            setTimeout(() => this.constructor(), 1000);
+            console.error('StarField not loaded');
             return;
         }
 
@@ -31,9 +24,6 @@ class BackgroundManager {
 
         // Add rocket cursor
         this.addRocketCursor();
-
-        // Make instance globally available
-        window.bgManager = this;
     }
 
     addRocketCursor() {
@@ -73,38 +63,26 @@ class BackgroundManager {
     }
 
     switchBackground(index) {
-        try {
-            // Don't switch if it's the same background
-            if (index === this.currentIndex) {
-                return;
-            }
-
-            // Validate index
-            if (index < 0 || index >= this.effects.length) {
-                console.error('Invalid background index:', index);
-                return;
-            }
-
-            // Clear existing canvas if any
-            if (this.currentEffect) {
-                if (this.currentEffect.canvas) {
-                    this.currentEffect.canvas.remove();
-                }
-                // Stop animation loop if it exists
-                if (this.currentEffect.stopAnimation) {
-                    this.currentEffect.stopAnimation();
-                }
-            }
-            
-            // Create new effect
-            const SelectedEffect = this.effects[index];
-            this.currentEffect = new SelectedEffect();
-            this.currentIndex = index;
-
-            console.log('Successfully switched to background:', index);
-        } catch (error) {
-            console.error('Error switching background:', error);
+        // Don't switch if it's the same background
+        if (index === this.currentIndex) {
+            return;
         }
+
+        // Clear existing canvas if any
+        if (this.currentEffect) {
+            if (this.currentEffect.canvas) {
+                this.currentEffect.canvas.remove();
+            }
+            // Stop animation loop if it exists
+            if (this.currentEffect.stopAnimation) {
+                this.currentEffect.stopAnimation();
+            }
+        }
+        
+        // Create new effect
+        const SelectedEffect = this.effects[index];
+        this.currentEffect = new SelectedEffect();
+        this.currentIndex = index;
     }
 }
 
@@ -839,10 +817,33 @@ class TextFlow {
     }
 }
 
-// Initialize when the document is loaded
+// Initialize when the document is loaded and make it globally accessible
 document.addEventListener('DOMContentLoaded', () => {
-    // Only initialize if not already initialized
-    if (!window.bgManager) {
-        window.bgManager = new BackgroundManager();
+    window.bgManager = new BackgroundManager();
+});
+
+// Initialize a global bgManager object with background switching functionality.
+window.bgManager = (function() {
+  // Array of background image URLs (ensure these paths are correct for your hosting setup)
+  const backgrounds = [
+    'url("./assets/img/stars.jpg")',    // Background for "Stars"
+    'url("./assets/img/dna.jpg")',      // Background for "DNA"
+    'url("./assets/img/waves.jpg")',    // Background for "Waves"
+    'url("./assets/img/textflow.jpg")'  // Background for "Text Flow"
+  ];
+
+  // Function to switch background by updating the style of an element.
+  function switchBackground(index) {
+    if (index >= 0 && index < backgrounds.length) {
+      // Assuming your <body> element or other element has an id="a"
+      document.getElementById('a').style.backgroundImage = backgrounds[index];
+    } else {
+      console.error("Invalid background index: " + index);
     }
-}); 
+  }
+
+  // Expose the public API.
+  return {
+    switchBackground: switchBackground
+  };
+})(); 
