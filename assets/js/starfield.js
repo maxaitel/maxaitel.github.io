@@ -118,31 +118,111 @@ class StarField {
         this.modelViewMatrix = new Float32Array(16);
         this.projectionMatrix = new Float32Array(16);
 
-        // Create ship cursor
+        // Create ship cursor with unique ID
+        const shipId = 'space-ship-cursor';
+        // Remove any existing ship cursor
+        const existingShip = document.getElementById(shipId);
+        if (existingShip) {
+            existingShip.remove();
+        }
+
         this.shipCursor = document.createElement('div');
+        this.shipCursor.id = shipId;
         this.shipCursor.style.position = 'fixed';
         this.shipCursor.style.pointerEvents = 'none';
-        this.shipCursor.style.width = '40px';
-        this.shipCursor.style.height = '40px';
-        this.shipCursor.style.zIndex = '1000';
+        this.shipCursor.style.width = '40px';  // Smaller size
+        this.shipCursor.style.height = '40px'; // Smaller size
+        this.shipCursor.style.zIndex = '9999';
+        this.shipCursor.style.transform = 'translate(-50%, -50%)';
         this.shipCursor.innerHTML = `
-            <svg width="40" height="40" viewBox="0 0 40 40">
-                <path d="M20 5 L35 35 L20 25 L5 35 Z" fill="white" stroke="#00ff00" stroke-width="2"/>
+            <svg width="40" height="40" viewBox="0 0 40 40" style="position: absolute; top: 0; left: 0;">
+                <defs>
+                    <filter id="ship-glow">
+                        <feGaussianBlur stdDeviation="1.5" result="coloredBlur"/>
+                        <feMerge>
+                            <feMergeNode in="coloredBlur"/>
+                            <feMergeNode in="SourceGraphic"/>
+                        </feMerge>
+                    </filter>
+                    <linearGradient id="shipGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" style="stop-color:#4287f5"/>
+                        <stop offset="100%" style="stop-color:#2b4d91"/>
+                    </linearGradient>
+                </defs>
+                <!-- Thruster animation -->
+                <g class="thruster">
+                    <path d="M20 28 L23 35 L20 33 L17 35 Z" fill="#ff6600">
+                        <animate attributeName="opacity" values="0.8;0.3;0.8" dur="0.2s" repeatCount="indefinite"/>
+                        <animate attributeName="d" 
+                            values="M20 28 L23 35 L20 33 L17 35 Z;M20 28 L24 37 L20 34 L16 37 Z;M20 28 L23 35 L20 33 L17 35 Z" 
+                            dur="0.2s" 
+                            repeatCount="indefinite"/>
+                    </path>
+                </g>
+                <!-- Ship body -->
+                <path d="M20 8 L28 32 L20 27 L12 32 Z" 
+                    fill="url(#shipGradient)" 
+                    stroke="#4287f5" 
+                    stroke-width="1.5" 
+                    filter="url(#ship-glow)">
+                    <animate attributeName="stroke-opacity" 
+                        values="1;0.5;1" 
+                        dur="1.5s" 
+                        repeatCount="indefinite"/>
+                </path>
             </svg>
         `;
         document.body.appendChild(this.shipCursor);
         document.body.style.cursor = 'none';
 
-        // Set up mouse tracking
+        // Set initial position to center of screen
+        const centerX = window.innerWidth / 2;
+        const centerY = window.innerHeight / 2;
+        this.shipCursor.style.left = `${centerX}px`;
+        this.shipCursor.style.top = `${centerY}px`;
+
+        // Set up mouse tracking with improved smooth rotation
         this.mouseX = 0;
         this.mouseY = 0;
+        this.currentRotation = 0;
+        this.targetRotation = 0;
+        this.velocity = { x: 0, y: 0 };
+        this.lastMousePos = { x: centerX, y: centerY };
+        
         document.addEventListener('mousemove', (e) => {
+            // Calculate velocity
+            this.velocity.x = e.clientX - this.lastMousePos.x;
+            this.velocity.y = e.clientY - this.lastMousePos.y;
+            this.lastMousePos = { x: e.clientX, y: e.clientY };
+
+            // Update starfield movement
             this.mouseX = (e.clientX - window.innerWidth / 2) * 0.1;
             this.mouseY = (e.clientY - window.innerHeight / 2) * 0.1;
             
-            // Update ship cursor position
-            const rotation = Math.atan2(e.movementY, e.movementX) * (180 / Math.PI) - 90;
-            this.shipCursor.style.transform = `translate(${e.clientX - 20}px, ${e.clientY - 20}px) rotate(${rotation}deg)`;
+            // Update ship position
+            this.shipCursor.style.left = `${e.clientX}px`;
+            this.shipCursor.style.top = `${e.clientY}px`;
+            
+            // Calculate rotation based on velocity instead of movement
+            if (Math.abs(this.velocity.x) > 0.1 || Math.abs(this.velocity.y) > 0.1) {
+                this.targetRotation = Math.atan2(this.velocity.y, this.velocity.x) * (180 / Math.PI) + 90;
+            }
+            
+            // Smoother rotation with easing
+            const rotationDiff = ((this.targetRotation - this.currentRotation + 540) % 360) - 180;
+            this.currentRotation += rotationDiff * 0.15;
+            
+            // Apply transforms
+            this.shipCursor.style.transform = `translate(-50%, -50%) rotate(${this.currentRotation}deg)`;
+        });
+
+        // Add debug logging
+        console.log('Ship cursor created:', this.shipCursor);
+        console.log('Ship cursor visible:', this.shipCursor.style.display !== 'none');
+        console.log('Ship cursor dimensions:', {
+            width: this.shipCursor.style.width,
+            height: this.shipCursor.style.height,
+            zIndex: this.shipCursor.style.zIndex
         });
 
         this.resize();
