@@ -8,9 +8,10 @@ class BackgroundManager {
 
         // List of available background effects
         this.effects = [
-            window.StarField, // StarField is perfect as is
+            window.StarField,
             DNAHelix,
-            WavePattern
+            WavePattern,
+            TextFlow
         ];
         
         this.currentEffect = null;
@@ -701,6 +702,114 @@ class NeonGridEffect {
             }
             this.ctx.stroke();
         }
+
+        if (this.isRunning) {
+            requestAnimationFrame(() => this.animate());
+        }
+    }
+}
+
+class TextFlow {
+    constructor() {
+        this.canvas = document.createElement('canvas');
+        this.canvas.style.position = 'fixed';
+        this.canvas.style.top = '0';
+        this.canvas.style.left = '0';
+        this.canvas.style.width = '100%';
+        this.canvas.style.height = '100%';
+        this.canvas.style.zIndex = '-1';
+        document.body.prepend(this.canvas);
+        
+        this.ctx = this.canvas.getContext('2d');
+        this.time = 0;
+        this.mouseX = 0;
+        this.mouseY = 0;
+        this.textRows = [];
+        this.chars = "⌘⌥⇧⌃↑→↓←⚡★▲▼◀▶△▽◁▷♠♣♥♦αβγδ01";
+        this.M = Math.floor(window.innerWidth / 14); // characters per row
+        
+        document.addEventListener('mousemove', (e) => {
+            this.mouseX = e.clientX;
+            this.mouseY = e.clientY;
+        });
+        
+        window.addEventListener('resize', () => this.resize());
+        this.resize();
+        this.isRunning = true;
+        this.animate();
+    }
+
+    resize() {
+        this.canvas.width = window.innerWidth;
+        this.canvas.height = window.innerHeight;
+        this.M = Math.floor(window.innerWidth / 14); // characters per row
+        
+        // Create text rows
+        this.textRows = [];
+        const rowCount = Math.floor(window.innerHeight / 20);
+        for (let i = 0; i < rowCount; i++) {
+            this.textRows.push({
+                text: new Array(this.M).fill(' '),
+                y: i * 20
+            });
+        }
+    }
+
+    stopAnimation() {
+        this.isRunning = false;
+    }
+
+    interpolateChar(a, b, t) {
+        const aIndex = this.chars.indexOf(a);
+        const bIndex = this.chars.indexOf(b);
+        if (aIndex === -1 || bIndex === -1) return a;
+        const newIndex = Math.round(aIndex * (1 - t) + bIndex * t);
+        return this.chars[newIndex % this.chars.length];
+    }
+
+    animate() {
+        if (!this.isRunning) return;
+        
+        this.time += 0.016;
+        this.ctx.fillStyle = 'rgba(0, 0, 0, 0.15)';
+        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+
+        // Update and draw text
+        this.textRows.forEach((row, rowIndex) => {
+            let newText = '';
+            for (let i = 0; i < this.M; i++) {
+                const x = i * 14;
+                const y = row.y;
+                
+                // Calculate position in the flowing pattern
+                const dx = x - this.mouseX;
+                const dy = y - this.mouseY;
+                const dist = Math.sqrt(dx * dx + dy * dy);
+                const angle = Math.atan2(dy, dx);
+                
+                // Create flowing pattern
+                const flowX = x / this.canvas.width * 4;
+                const flowY = y / this.canvas.height * 4;
+                const noiseValue = Math.sin(flowX + this.time * 0.5) * Math.cos(flowY + this.time * 0.3);
+                
+                // Add mouse influence
+                const mouseInfluence = Math.max(0, 1 - dist / 300);
+                const patternValue = noiseValue + mouseInfluence;
+                
+                // Select character based on pattern
+                const charIndex = Math.floor((patternValue + 1) * this.chars.length / 2) % this.chars.length;
+                const char = this.chars[Math.abs(charIndex)];
+                
+                // Draw character
+                this.ctx.font = `14px monospace`;
+                const alpha = 0.3 + mouseInfluence * 0.7 + Math.abs(noiseValue) * 0.3;
+                this.ctx.fillStyle = `rgba(100, 200, 255, ${alpha})`;
+                this.ctx.fillText(char, x, y);
+                
+                newText += char;
+            }
+            row.text = newText.split('');
+        });
 
         if (this.isRunning) {
             requestAnimationFrame(() => this.animate());
