@@ -133,42 +133,11 @@ $(window).bind("beforeunload", function() {
 });
 </script>
 
-<!-- Background Switcher -->
-<div id="bg-switcher" style="position: fixed; bottom: 20px; right: 20px; z-index: 1000; background: rgba(0, 0, 0, 0.7); padding: 10px; border-radius: 10px; display: flex; gap: 10px; flex-wrap: wrap; max-width: 300px; justify-content: center;">
-    <button class="btn btn-outline-light btn-sm" onclick="window.bgManager.switchBackground(0)">Stars</button>
-    <button class="btn btn-outline-light btn-sm" onclick="window.bgManager.switchBackground(1)">DNA</button>
-    <button class="btn btn-outline-light btn-sm" onclick="window.bgManager.switchBackground(2)">Waves</button>
-</div>
-
 <script src="./assets/js/sparkles.js"></script>
 <script src="./assets/js/all.js"></script>
 <script src="./assets/js/starfield.js"></script>
 <script src="./assets/js/backgrounds.js"></script>
-<script>
-    // Initialize the background manager
-    window.addEventListener('load', () => {
-        console.log('Window loaded, initializing background manager...');
-        try {
-            console.log('StarField available:', !!window.StarField);
-            window.bgManager = new BackgroundManager();
-            console.log('Background manager initialized:', !!window.bgManager);
-        } catch (error) {
-            console.error('Error initializing background manager:', error);
-        }
-    });
 
-    // Add click handlers with error logging
-    document.querySelectorAll('#bg-switcher button').forEach((button, index) => {
-        button.addEventListener('click', () => {
-            console.log(`Attempting to switch to background ${index}`);
-            try {
-                window.bgManager.switchBackground(index);
-            } catch (error) {
-                console.error(`Error switching to background ${index}:`, error);
-            }
-        });
-    });
-</script>
 <style>
   /* Add styles to ensure text readability over the starfield */
   #meth, #thingsilike, #socials {
@@ -182,18 +151,6 @@ $(window).bind("beforeunload", function() {
   }
   .navbar {
     background-color: rgba(33, 37, 41, 0.9) !important;
-  }
-  /* Style for background switcher buttons */
-  .btn-outline-light {
-    margin: 0 5px;
-    transition: all 0.3s ease;
-  }
-  .btn-outline-light:hover {
-    transform: scale(1.1);
-    box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
-  }
-  .btn-outline-light:focus {
-    box-shadow: none;
   }
 </style>
 </body>

@@ -1,3 +1,8 @@
+// Initialize StarField when the document is loaded
+document.addEventListener('DOMContentLoaded', () => {
+    window.starField = new StarField();
+});
+
 // Make StarField available globally
 window.StarField = StarField;
 

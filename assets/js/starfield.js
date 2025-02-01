@@ -69,24 +69,35 @@ class StarField {
             this.stars[i3 + 1] = (Math.random() - 0.5) * 2000;
             this.stars[i3 + 2] = (Math.random() - 0.5) * 2000;
 
-            // Generate random star colors (mostly white/blue with some red and yellow)
+            // Enhanced random star colors
             const colorChoice = Math.random();
-            if (colorChoice < 0.7) {
-                // White/blue stars
+            
+            if (colorChoice < 0.5) {
+                // Cool blue/white stars (50% chance)
                 const blueIntensity = 0.8 + Math.random() * 0.2;
-                this.colors[i3] = 0.8 + Math.random() * 0.2;
-                this.colors[i3 + 1] = 0.8 + Math.random() * 0.2;
-                this.colors[i3 + 2] = blueIntensity;
+                this.colors[i3] = 0.7 + Math.random() * 0.3;     // Red
+                this.colors[i3 + 1] = 0.7 + Math.random() * 0.3; // Green
+                this.colors[i3 + 2] = blueIntensity;             // Blue
+            } else if (colorChoice < 0.7) {
+                // Purple/pink stars (20% chance)
+                this.colors[i3] = 0.8 + Math.random() * 0.2;     // Red
+                this.colors[i3 + 1] = 0.4 + Math.random() * 0.3; // Green
+                this.colors[i3 + 2] = 0.8 + Math.random() * 0.2; // Blue
             } else if (colorChoice < 0.85) {
-                // Yellow stars
-                this.colors[i3] = 1.0;
-                this.colors[i3 + 1] = 0.8 + Math.random() * 0.2;
-                this.colors[i3 + 2] = 0.3;
+                // Yellow/orange stars (15% chance)
+                this.colors[i3] = 1.0;                           // Red
+                this.colors[i3 + 1] = 0.7 + Math.random() * 0.3; // Green
+                this.colors[i3 + 2] = 0.2 + Math.random() * 0.2; // Blue
+            } else if (colorChoice < 0.95) {
+                // Red stars (10% chance)
+                this.colors[i3] = 0.9 + Math.random() * 0.1;     // Red
+                this.colors[i3 + 1] = 0.2 + Math.random() * 0.2; // Green
+                this.colors[i3 + 2] = 0.2 + Math.random() * 0.2; // Blue
             } else {
-                // Red stars
-                this.colors[i3] = 1.0;
-                this.colors[i3 + 1] = 0.3;
-                this.colors[i3 + 2] = 0.3;
+                // Rare teal/cyan stars (5% chance)
+                this.colors[i3] = 0.2 + Math.random() * 0.2;     // Red
+                this.colors[i3 + 1] = 0.8 + Math.random() * 0.2; // Green
+                this.colors[i3 + 2] = 0.8 + Math.random() * 0.2; // Blue
             }
         }
 
