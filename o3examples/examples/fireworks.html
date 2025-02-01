@@ -2,261 +2,597 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>3D Cloud Simulation with Physics</title>
+  <title>Ultra Enhanced 80's Demo</title>
   <style>
-    /* Remove default margins and ensure the canvas fills the screen */
-    body {
+    html, body {
       margin: 0;
+      padding: 0;
       overflow: hidden;
+      background: black;
     }
     canvas {
       display: block;
+      background: black;
+    }
+    #fpsDisplay {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      font-family: monospace;
+      font-size: 16px;
+      color: #00FF00;
+      background: rgba(0,0,0,0.5);
+      padding: 4px 8px;
+      border-radius: 4px;
+      z-index: 1000;
     }
   </style>
 </head>
 <body>
-  <!-- The simulation is created entirely via JavaScript -->
-  <script type="module">
-    // Import Three.js and OrbitControls from a CDN with absolute URLs.
-    import * as THREE from 'https://unpkg.com/three@0.150.1/build/three.module.js';
-    import { OrbitControls } from 'https://unpkg.com/three@0.150.1/examples/jsm/controls/OrbitControls.js';
+  <canvas id="demo"></canvas>
+  <div id="fpsDisplay"></div>
+  <script>
+    "use strict";
 
-    // ----------------------
-    // Scene, Camera, Renderer
-    // ----------------------
-    const scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x87ceeb); // Sky-blue background
+    // -------------------------------
+    // Global Setup and Canvas Resize
+    // -------------------------------
+    const canvas = document.getElementById("demo");
+    const ctx = canvas.getContext("2d");
+    let cw, ch;
+    function resizeCanvas() {
+      cw = canvas.width = window.innerWidth;
+      ch = canvas.height = window.innerHeight;
+    }
+    window.addEventListener("resize", resizeCanvas);
+    resizeCanvas();
 
-    const camera = new THREE.PerspectiveCamera(
-      60,
-      window.innerWidth / window.innerHeight,
-      0.1,
-      1000
-    );
-    camera.position.set(0, 20, 50);
-
-    const renderer = new THREE.WebGLRenderer({ antialias: true });
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    document.body.appendChild(renderer.domElement);
-
-    // OrbitControls lets you rotate/zoom the view with your mouse
-    const controls = new OrbitControls(camera, renderer.domElement);
-
-    window.addEventListener('resize', () => {
-      camera.aspect = window.innerWidth / window.innerHeight;
-      camera.updateProjectionMatrix();
-      renderer.setSize(window.innerWidth, window.innerHeight);
-    });
-
-    // ----------------------
-    // Create a Cloud Puff Texture
-    // ----------------------
-    // This function creates a circular, radially fading texture to simulate a soft cloud puff.
-    function createCloudTexture() {
-      const size = 128;
-      const canvas = document.createElement('canvas');
-      canvas.width = size;
-      canvas.height = size;
-      const ctx = canvas.getContext('2d');
-
-      // Create a radial gradient: opaque in the center, transparent at the edges.
-      const gradient = ctx.createRadialGradient(
-        size / 2, size / 2, 0,
-        size / 2, size / 2, size / 2
-      );
-      gradient.addColorStop(0, 'rgba(255, 255, 255, 0.8)');
-      gradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
-      ctx.fillStyle = gradient;
-      ctx.fillRect(0, 0, size, size);
-
-      const texture = new THREE.Texture(canvas);
-      texture.needsUpdate = true;
-      return texture;
+    // -----------------------------------------
+    // Utility Function: Enhanced CRT Scanlines
+    // -----------------------------------------
+    function drawScanlines() {
+      ctx.save();
+      ctx.fillStyle = "rgba(0,0,0,0.08)";
+      for (let y = 0; y < ch; y += 2) {
+        ctx.fillRect(0, y, cw, 1);
+      }
+      ctx.restore();
     }
 
-    const cloudTexture = createCloudTexture();
-    const cloudMaterial = new THREE.SpriteMaterial({
-      map: cloudTexture,
-      transparent: true,
-      opacity: 0.8,
-      depthWrite: false
-    });
-
-    // ----------------------
-    // Simple Physics Classes
-    // ----------------------
-
-    // Particle class represents a point mass in 3D space.
-    class Particle {
-      constructor(position) {
-        this.position = position.clone();
-        this.velocity = new THREE.Vector3();
-        this.acceleration = new THREE.Vector3();
-        this.mass = 1;
-        this.sprite = null; // Visual representation will be a Three.js Sprite.
-      }
-      // Apply a force (F = m · a)
-      applyForce(force) {
-        this.acceleration.add(force.clone().divideScalar(this.mass));
-      }
-      // Update position and velocity using simple Euler integration.
-      update(dt) {
-        this.velocity.add(this.acceleration.clone().multiplyScalar(dt));
-        this.position.add(this.velocity.clone().multiplyScalar(dt));
-        // Apply damping to simulate drag.
-        this.velocity.multiplyScalar(0.98);
-        this.acceleration.set(0, 0, 0);
-      }
+    // -----------------------------------------
+    // Utility Function: Radial Bloom Glow
+    // -----------------------------------------
+    function applyBloom() {
+      // Optional: for a subtle glow overlay effect
+      ctx.save();
+      ctx.globalCompositeOperation = 'lighter';
+      ctx.filter = "blur(4px)";
+      ctx.drawImage(canvas, 0, 0);
+      ctx.filter = "none";
+      ctx.restore();
     }
 
-    // Spring connects two particles and applies a force to maintain a rest length.
-    class Spring {
-      constructor(p1, p2, restLength, stiffness) {
-        this.p1 = p1;
-        this.p2 = p2;
-        this.restLength = restLength;
-        this.stiffness = stiffness;
-      }
-      apply() {
-        const diff = new THREE.Vector3().subVectors(this.p2.position, this.p1.position);
-        const currentLength = diff.length();
-        const displacement = currentLength - this.restLength;
-        if (currentLength !== 0) diff.normalize();
-        const force = diff.multiplyScalar(this.stiffness * displacement);
-        this.p1.applyForce(force);
-        this.p2.applyForce(force.clone().multiplyScalar(-1));
-      }
-    }
+    // -------------------------
+    // Stage Management
+    // -------------------------
+    let stages = [];
+    let currentStageIndex = 0;
+    let stageStartTime = performance.now();
 
-    // ----------------------
-    // Cloud Class (Spring–Mass System)
-    // ----------------------
-    // Each cloud is constructed from several particles (visualized as sprites) connected by springs.
-    class Cloud {
-      constructor(position, particleCount, scene) {
+    // -----------------------------------------------------------
+    // Stage 1: Enhanced Neon Title + Explosive Particle Sparks
+    // -----------------------------------------------------------
+    const stage1 = {
+      duration: 9000,
+      init() {
         this.particles = [];
-        this.springs = [];
-        // Create particles with random offsets around the specified position.
-        for (let i = 0; i < particleCount; i++) {
-          const offset = new THREE.Vector3(
-            (Math.random() - 0.5) * 20,
-            (Math.random() - 0.5) * 10,
-            (Math.random() - 0.5) * 20
-          );
-          const p = new Particle(position.clone().add(offset));
-          // Create a sprite to represent the cloud puff.
-          p.sprite = new THREE.Sprite(cloudMaterial);
-          const scale = 5 + Math.random() * 5;
-          p.sprite.scale.set(scale, scale, 1);
-          p.sprite.position.copy(p.position);
-          scene.add(p.sprite);
-          this.particles.push(p);
+      },
+      draw(t, dt) {
+        const timeFactor = t / 1000;
+        // Dynamic pulsating radial background
+        const radius = Math.max(cw, ch) * (0.45 + 0.15 * Math.abs(Math.sin(timeFactor)));
+        let grad = ctx.createRadialGradient(cw/2, ch/2, 20, cw/2, ch/2, radius);
+        grad.addColorStop(0, "#001133");
+        grad.addColorStop(0.7, "#220044");
+        grad.addColorStop(1, "black");
+        ctx.fillStyle = grad;
+        ctx.fillRect(0, 0, cw, ch);
+        // Add neon spark particles with random bursts.
+        for (let i = 0; i < 4; i++) {
+          this.particles.push({
+            x: cw/2,
+            y: ch/2,
+            vx: (Math.random()-0.5) * 8,
+            vy: (Math.random()-0.5) * 8,
+            life: 120 + Math.random() * 60,
+            size: 2 + Math.random() * 2
+          });
         }
-        // Create a nearly fixed central particle.
-        this.center = new Particle(position.clone());
-        this.center.mass = 1000; // High mass so it barely moves.
-        // Connect each particle to the center with a spring.
-        for (const p of this.particles) {
-          const restLength = p.position.distanceTo(this.center.position);
-          const spring = new Spring(p, this.center, restLength, 0.2);
-          this.springs.push(spring);
-        }
-        // Additionally, connect nearby particles with springs for extra cohesion.
-        for (let i = 0; i < this.particles.length; i++) {
-          for (let j = i + 1; j < this.particles.length; j++) {
-            const p1 = this.particles[i];
-            const p2 = this.particles[j];
-            const distance = p1.position.distanceTo(p2.position);
-            if (distance < 15) {
-              const spring = new Spring(p1, p2, distance, 0.1);
-              this.springs.push(spring);
-            }
+        // Update and draw particles.
+        ctx.save();
+        for (let i = this.particles.length - 1; i >= 0; i--) {
+          const p = this.particles[i];
+          p.x += p.vx;
+          p.y += p.vy;
+          p.life -= dt * 0.15;
+          const alpha = Math.max(p.life / 180, 0);
+          ctx.fillStyle = "rgba(255,50,255," + alpha + ")";
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+          ctx.fill();
+          if (p.life <= 0) {
+            this.particles.splice(i, 1);
           }
         }
-      }
-      // Apply a wind force to all particles in the cloud.
-      applyWind(windForce) {
-        for (const p of this.particles) {
-          p.applyForce(windForce);
+        ctx.restore();
+        // Neon title text with multiple glow layers.
+        ctx.save();
+        ctx.font = "bold 120px Courier New";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        // Create multiple glows by drawing several times with increasing blur.
+        for (let i = 0; i < 3; i++) {
+          ctx.save();
+          ctx.shadowColor = "#FF00FF";
+          ctx.shadowBlur = 20 + i * 10;
+          ctx.fillStyle = `rgba(255,100,255,${0.5/(i+1)})`;
+          ctx.fillText("ULTIMATE 80's DEMO", cw/2, ch/2);
+          ctx.restore();
         }
+        // Stroke for crisp edges.
+        ctx.lineWidth = 3;
+        ctx.strokeStyle = "#FFFFFF";
+        ctx.strokeText("ULTIMATE 80's DEMO", cw/2, ch/2);
+        ctx.restore();
+        drawScanlines();
+        // Optionally apply light bloom to the whole canvas.
+        // applyBloom();
       }
-      // Update the physics simulation and update each sprite’s position.
-      update(dt) {
-        // Apply all spring forces.
-        for (const spring of this.springs) {
-          spring.apply();
+    };
+    stages.push(stage1);
+
+    // ----------------------------------------------------------
+    // Stage 2: Dynamic Colorful Starfield with Parallax Motion
+    // ----------------------------------------------------------
+    const stage2 = {
+      duration: 9000,
+      numStars: 1000,
+      init() {
+        this.stars = [];
+        for (let i = 0; i < this.numStars; i++) {
+          this.stars.push({
+            x: (Math.random()-0.5) * cw * 2,
+            y: (Math.random()-0.5) * ch * 2,
+            z: Math.random() * cw,
+            baseHue: Math.random() * 360
+          });
         }
-        // Update each particle.
-        for (const p of this.particles) {
-          p.update(dt);
-          p.sprite.position.copy(p.position);
+      },
+      draw(t, dt) {
+        ctx.fillStyle = "black";
+        ctx.fillRect(0, 0, cw, ch);
+        const speed = 0.5 * (cw/800);
+        for (let star of this.stars) {
+          star.z -= speed * dt * 0.07;
+          if (star.z <= 0) {
+            star.x = (Math.random()-0.5) * cw * 2;
+            star.y = (Math.random()-0.5) * ch * 2;
+            star.z = cw;
+          }
+          const k = 128 / star.z;
+          const x = star.x * k + cw/2;
+          const y = star.y * k + ch/2;
+          const size = (1 - star.z/cw) * 3;
+          const hue = (star.baseHue + t/20) % 360;
+          ctx.fillStyle = `hsla(${hue},80%,75%,${1 - star.z/cw})`;
+          ctx.beginPath();
+          ctx.arc(x, y, size, 0, Math.PI*2);
+          ctx.fill();
         }
+        drawScanlines();
       }
-    }
+    };
+    stages.push(stage2);
 
-    // ----------------------
-    // Build the Scene
-    // ----------------------
+    // ----------------------------------------------------------
+    // Stage 3: Rotating 3D Wireframe Cube with Depth & Glow
+    // ----------------------------------------------------------
+    const stage3 = {
+      duration: 9000,
+      cubeSize: 150,
+      init() {
+        const s = this.cubeSize;
+        this.vertices = [
+          {x: -s, y: -s, z: -s},
+          {x:  s, y: -s, z: -s},
+          {x: -s, y:  s, z: -s},
+          {x:  s, y:  s, z: -s},
+          {x: -s, y: -s, z:  s},
+          {x:  s, y: -s, z:  s},
+          {x: -s, y:  s, z:  s},
+          {x:  s, y:  s, z:  s}
+        ];
+        this.edges = [
+          [0,1], [1,3], [3,2], [2,0],
+          [4,5], [5,7], [7,6], [6,4],
+          [0,4], [1,5], [2,6], [3,7]
+        ];
+      },
+      draw(t, dt) {
+        // Deep gradient background
+        let grad = ctx.createLinearGradient(0, 0, cw, ch);
+        grad.addColorStop(0, "#000022");
+        grad.addColorStop(1, "black");
+        ctx.fillStyle = grad;
+        ctx.fillRect(0, 0, cw, ch);
+        const angle = t / 1000;
+        const cosA = Math.cos(angle), sinA = Math.sin(angle);
+        const cosB = Math.cos(angle * 0.8), sinB = Math.sin(angle * 0.8);
+        let projected = [];
+        for (let v of this.vertices) {
+          // Rotate around Y
+          let x = v.x * cosA - v.z * sinA;
+          let z = v.x * sinA + v.z * cosA;
+          // Rotate around X
+          let y = v.y * cosB - z * sinB;
+          z = v.y * sinB + z * cosB;
+          const factor = 300/(300+z);
+          const projX = x * factor + cw/2;
+          const projY = y * factor + ch/2;
+          projected.push({x: projX, y: projY, z});
+        }
+        // Draw edges with inner glow
+        for (let edge of this.edges) {
+          const p1 = projected[edge[0]], p2 = projected[edge[1]];
+          const depth = (p1.z + p2.z) / 2;
+          const shade = Math.floor(255 - ((depth + 150) / 450) * 255);
+          ctx.strokeStyle = `rgb(${shade}, ${shade}, 255)`;
+          ctx.lineWidth = 3;
+          ctx.beginPath();
+          ctx.moveTo(p1.x, p1.y);
+          ctx.lineTo(p2.x, p2.y);
+          ctx.stroke();
+          // Extra glow layer
+          ctx.strokeStyle = "rgba(255,255,255,0.1)";
+          ctx.lineWidth = 8;
+          ctx.beginPath();
+          ctx.moveTo(p1.x, p1.y);
+          ctx.lineTo(p2.x, p2.y);
+          ctx.stroke();
+        }
+        drawScanlines();
+      }
+    };
+    stages.push(stage3);
 
-    // Create several clouds at different positions.
-    const clouds = [];
-    for (let i = 0; i < 5; i++) {
-      const pos = new THREE.Vector3(
-        (Math.random() - 0.5) * 50,
-        20 + Math.random() * 10,
-        (Math.random() - 0.5) * 50
-      );
-      const cloud = new Cloud(pos, 20, scene);
-      clouds.push(cloud);
-    }
+    // -------------------------------------------
+    // Stage 4: Plasma Effect with Smooth Vibrant Colors
+    // -------------------------------------------
+    const stage4 = {
+      duration: 11000,
+      init() {
+        this.offscreen = document.createElement("canvas");
+        this.offscreen.width = cw;
+        this.offscreen.height = ch;
+        this.octx = this.offscreen.getContext("2d");
+        this.imageData = this.octx.getImageData(0, 0, cw, ch);
+      },
+      draw(t, dt) {
+        if (this.offscreen.width !== cw || this.offscreen.height !== ch) {
+          this.offscreen.width = cw;
+          this.offscreen.height = ch;
+          this.imageData = this.octx.getImageData(0, 0, cw, ch);
+        }
+        const data = this.imageData.data;
+        const time = t / 1000;
+        for (let y = 0; y < ch; y++) {
+          for (let x = 0; x < cw; x++) {
+            const index = (x + y * cw) * 4;
+            const v = Math.sin(x/40 + time) + Math.sin(y/35 + time * 1.3) +
+                      Math.sin((x+y)/45 + time * 0.9) + Math.sin(Math.sqrt(x*x+y*y)/30 + time);
+            // Normalize and use sine to create a smooth color transition.
+            const color = Math.floor((v / 4 + 1) * 128);
+            const r = Math.floor(color * Math.abs(Math.sin(time + x/70)));
+            const g = Math.floor(color * Math.abs(Math.cos(time + y/70)));
+            const b = 255 - color;
+            data[index] = r;
+            data[index+1] = g;
+            data[index+2] = b;
+            data[index+3] = 255;
+          }
+        }
+        this.octx.putImageData(this.imageData, 0, 0);
+        ctx.drawImage(this.offscreen, 0, 0);
+        drawScanlines();
+      }
+    };
+    stages.push(stage4);
 
-    // (Optional) Add a ground plane for context.
-    const groundGeo = new THREE.PlaneGeometry(200, 200);
-    const groundMat = new THREE.MeshPhongMaterial({
-      color: 0x228B22,
-      side: THREE.DoubleSide
-    });
-    const ground = new THREE.Mesh(groundGeo, groundMat);
-    ground.rotation.x = -Math.PI / 2;
-    ground.position.y = 0;
-    scene.add(ground);
+    // -------------------------------------------
+    // Stage 5: Bouncing Text with Luminous Reflection
+    // -------------------------------------------
+    const stage5 = {
+      duration: 9000,
+      init() {
+        this.posX = cw / 2;
+        this.posY = ch / 2;
+        this.velX = 5;
+        this.velY = 4;
+      },
+      draw(t, dt) {
+        // Background with diagonal gradient
+        let grad = ctx.createLinearGradient(0, 0, cw, ch);
+        grad.addColorStop(0, "#221133");
+        grad.addColorStop(1, "black");
+        ctx.fillStyle = grad;
+        ctx.fillRect(0, 0, cw, ch);
+        // Bouncing logic
+        this.posX += this.velX;
+        this.posY += this.velY;
+        if (this.posX < 150 || this.posX > cw-150) this.velX = -this.velX;
+        if (this.posY < 80 || this.posY > ch-80) this.velY = -this.velY;
+        ctx.save();
+        ctx.font = "bold 80px Courier New";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        // Slight rotation oscillation
+        const angle = Math.sin(t/500)*0.25;
+        ctx.translate(this.posX, this.posY);
+        ctx.rotate(angle);
+        // Bright text with double glow layers
+        ctx.fillStyle = "#FFFF66";
+        ctx.shadowColor = "#FFFFAA";
+        ctx.shadowBlur = 20;
+        ctx.fillText("BOUNCE!", 0, 0);
+        ctx.lineWidth = 2;
+        ctx.strokeStyle = "#FFFFFF";
+        ctx.strokeText("BOUNCE!", 0, 0);
+        // Reflection (mirrored)
+        ctx.save();
+        ctx.scale(1, -1);
+        ctx.globalAlpha = 0.35;
+        ctx.fillStyle = "#FFFF66";
+        ctx.fillText("BOUNCE!", 0, 0);
+        ctx.restore();
+        ctx.restore();
+        drawScanlines();
+      }
+    };
+    stages.push(stage5);
 
-    // Add lighting to the scene.
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.7);
-    scene.add(ambientLight);
-    const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
-    directionalLight.position.set(50, 100, 50);
-    scene.add(directionalLight);
+    // -------------------------------------------
+    // Stage 6: Kaleidoscope with Dynamic Rainbow Slices (Updated)
+    // -------------------------------------------
+    const stage6 = {
+      duration: 9000,
+      draw(t, dt) {
+        // Fill the background
+        ctx.fillStyle = "black";
+        ctx.fillRect(0, 0, cw, ch);
+        const numSlices = 16;
+        const angleSlice = (Math.PI * 2) / numSlices;
+        const time = t / 1000;
+        ctx.save();
+        ctx.translate(cw / 2, ch / 2);
+        for (let i = 0; i < numSlices; i++) {
+          ctx.save();
+          ctx.rotate(i * angleSlice + Math.sin(time) * 0.3);
+          // Creating a gradient from the center (radius 0) to the edge (radius = cw/2)
+          let grad = ctx.createRadialGradient(0, 0, 0, 0, 0, cw / 2);
+          grad.addColorStop(0, `hsla(${(time * 70 + i * 20) % 360}, 100%, 60%, 0.9)`);
+          grad.addColorStop(1, "rgba(0,0,0,0)");
+          ctx.fillStyle = grad;
+          // Draw an arc segment that connects back to the center:
+          ctx.beginPath();
+          ctx.moveTo(0, 0);
+          ctx.arc(0, 0, cw / 2, 0, angleSlice, false);
+          ctx.closePath();
+          ctx.fill();
+          ctx.restore();
+        }
+        ctx.restore();
+        drawScanlines();
+      }
+    };
+    stages.push(stage6);
 
-    // ----------------------
-    // Animation Loop
-    // ----------------------
+    // -------------------------------------------
+    // Stage 7: Neon Grid with Pulsating Wave Distortion
+    // -------------------------------------------
+    const stage7 = {
+      duration: 9500,
+      draw(t, dt) {
+        // Dark background fill.
+        ctx.fillStyle = "black";
+        ctx.fillRect(0,0,cw,ch);
+        // Calculate a dynamic neon hue.
+        const neonHue = (t/10) % 360;
+        ctx.save();
+        ctx.translate(cw/2, ch/2);
+        const gridSpacing = 50;
+        const offset = Math.sin(t/500) * 20;
+        ctx.lineWidth = 2;
+        ctx.strokeStyle = `hsla(${neonHue}, 100%, 50%, 0.5)`;
+        ctx.shadowColor = `hsla(${neonHue}, 100%, 50%, 1)`;
+        ctx.shadowBlur = 15;
+        // Draw vertical grid lines with a wavy distortion.
+        for (let x = -cw; x < cw; x += gridSpacing) {
+          ctx.beginPath();
+          for (let y = -ch; y < ch; y += 5) {
+            let wave = Math.sin((x + t/500) * 0.05 + y * 0.05) * offset;
+            if(y === -ch) {
+              ctx.moveTo(x + wave, y);
+            } else {
+              ctx.lineTo(x + wave, y);
+            }
+          }
+          ctx.stroke();
+        }
+        // Draw horizontal grid lines with a wavy distortion.
+        for (let y = -ch; y < ch; y += gridSpacing) {
+          ctx.beginPath();
+          for (let x = -cw; x < cw; x += 5) {
+            let wave = Math.sin((y + t/500) * 0.05 + x * 0.05) * offset;
+            if(x === -cw) {
+              ctx.moveTo(x, y + wave);
+            } else {
+              ctx.lineTo(x, y + wave);
+            }
+          }
+          ctx.stroke();
+        }
+        ctx.restore();
+        drawScanlines();
+      }
+    };
+    stages.push(stage7);
+
+    // -------------------------------------------
+    // Stage 8: Fractal Tree with Animated Wind & Luminous Branches
+    // -------------------------------------------
+    const stage8 = {
+      duration: 11000,
+      drawTree(x, y, angle, depth, branchWidth, wind) {
+        if (depth === 0) return;
+        const length = depth * 10;
+        const x2 = x + Math.cos(angle + wind) * length;
+        const y2 = y + Math.sin(angle + wind) * length;
+        ctx.lineWidth = branchWidth;
+        // Branch color varies with depth.
+        ctx.strokeStyle = `rgba(0, ${150+depth*6}, 0, ${depth/12})`;
+        ctx.beginPath();
+        ctx.moveTo(x, y);
+        ctx.lineTo(x2, y2);
+        ctx.stroke();
+        this.drawTree(x2, y2, angle-0.3, depth-1, branchWidth*0.7, wind);
+        this.drawTree(x2, y2, angle+0.3, depth-1, branchWidth*0.7, wind);
+      },
+      draw(t, dt) {
+        ctx.fillStyle = "#001100";
+        ctx.fillRect(0,0,cw,ch);
+        const wind = 0.3 * Math.sin(t/1000);
+        ctx.save();
+        ctx.translate(cw/2, ch);
+        this.drawTree(0, 0, -Math.PI/2, 12, 10, wind);
+        ctx.restore();
+        drawScanlines();
+      }
+    };
+    stages.push(stage8);
+
+    // -------------------------------------------
+    // Stage 9: Tunnel / Recursive Depth Effect with Enhanced Color Shifts
+    // -------------------------------------------
+    const stage9 = {
+      duration: 11000,
+      draw(t, dt) {
+        ctx.fillStyle = "black";
+        ctx.fillRect(0,0,cw,ch);
+        const time = t/1000;
+        ctx.save();
+        ctx.translate(cw/2, ch/2);
+        for (let i = 0; i < 50; i++) {
+          const scale = 1 - i/50;
+          ctx.save();
+          ctx.scale(scale, scale);
+          ctx.rotate(time + i * 0.12);
+          const alpha = 1 - i/50;
+          ctx.strokeStyle = `rgba(${Math.floor(255-i*5)}, ${Math.floor(100+i*3)}, ${Math.floor(150+i*2)}, ${alpha})`;
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.rect(-cw, -ch, cw*2, ch*2);
+          ctx.stroke();
+          ctx.restore();
+        }
+        ctx.restore();
+        drawScanlines();
+      }
+    };
+    stages.push(stage9);
+
+    // -------------------------------------------
+    // Stage 10: Rotating 3D Particle Sphere with Depth Trails
+    // -------------------------------------------
+    const stage10 = {
+      duration: 11000,
+      init() {
+        this.particles = [];
+        for (let i = 0; i < 1200; i++) {
+          const theta = Math.random() * Math.PI * 2;
+          const phi = Math.acos(2 * Math.random() - 1);
+          const radius = 150;
+          const x = radius * Math.sin(phi) * Math.cos(theta);
+          const y = radius * Math.sin(phi) * Math.sin(theta);
+          const z = radius * Math.cos(phi);
+          this.particles.push({x, y, z});
+        }
+      },
+      draw(t, dt) {
+        ctx.fillStyle = "#000000";
+        ctx.fillRect(0, 0, cw, ch);
+        const angle = t/1000;
+        const cosA = Math.cos(angle);
+        const sinA = Math.sin(angle);
+        const cosB = Math.cos(angle * 0.7);
+        const sinB = Math.sin(angle * 0.7);
+        ctx.fillStyle = "#FFAA00";
+        for (let p of this.particles) {
+          let x = p.x * cosA - p.z * sinA;
+          let z = p.x * sinA + p.z * cosA;
+          let y = p.y;
+          let y2 = y * cosB - z * sinB;
+          let z2 = y * sinB + z * cosB;
+          const factor = 300 / (300 + z2);
+          const projX = x * factor + cw/2;
+          const projY = y2 * factor + ch/2;
+          const size = (1 - z2/300) * 2;
+          ctx.beginPath();
+          ctx.arc(projX, projY, size, 0, Math.PI*2);
+          ctx.fill();
+        }
+        drawScanlines();
+      }
+    };
+    stages.push(stage10);
+
+    // -----------------------------
+    // Main Animation Loop & Stage Transitions
+    // -----------------------------
     let lastTime = performance.now();
-    function animate() {
-      requestAnimationFrame(animate);
-      const currentTime = performance.now();
-      const dt = (currentTime - lastTime) / 1000;
-      lastTime = currentTime;
-
-      // Create a gentle wind that oscillates over time.
-      const time = currentTime * 0.001;
-      const windStrength = 2;
-      const windForce = new THREE.Vector3(
-        Math.sin(time * 0.5) * windStrength,
-        0,
-        Math.cos(time * 0.5) * windStrength
-      );
-
-      // Update each cloud: apply wind and update physics.
-      for (const cloud of clouds) {
-        cloud.applyWind(windForce);
-        cloud.update(dt);
+    if (stages[currentStageIndex].init) stages[currentStageIndex].init();
+    function animate(now) {
+      const dt = now - lastTime;
+      lastTime = now;
+      // Slight fade between frames for motion blur effect.
+      ctx.fillStyle = "rgba(0,0,0,0.95)";
+      ctx.fillRect(0,0,cw,ch);
+      const currentStage = stages[currentStageIndex];
+      const elapsed = now - stageStartTime;
+      if (currentStage.draw) currentStage.draw(elapsed, dt);
+      if (elapsed > currentStage.duration) {
+        currentStageIndex = (currentStageIndex + 1) % stages.length;
+        stageStartTime = now;
+        if (stages[currentStageIndex].init) stages[currentStageIndex].init();
       }
-
-      controls.update();
-      renderer.render(scene, camera);
+      updateFPS(now);
+      requestAnimationFrame(animate);
     }
-    animate();
+    requestAnimationFrame(animate);
+
+    // -----------------------------
+    // FPS Display
+    // -----------------------------
+    let fps = 0, frames = 0, fpsTime = performance.now();
+    const fpsDisplay = document.getElementById("fpsDisplay");
+    function updateFPS(now) {
+      frames++;
+      if (now - fpsTime > 1000) {
+        fps = frames;
+        frames = 0;
+        fpsTime = now;
+        fpsDisplay.textContent = "FPS: " + fps + " | Stage: " + (currentStageIndex+1);
+      }
+    }
   </script>
 </body>
 </html>
