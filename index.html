@@ -138,13 +138,37 @@ $(window).bind("beforeunload", function() {
     <button class="btn btn-outline-light btn-sm" onclick="window.bgManager.switchBackground(0)">Stars</button>
     <button class="btn btn-outline-light btn-sm" onclick="window.bgManager.switchBackground(1)">DNA</button>
     <button class="btn btn-outline-light btn-sm" onclick="window.bgManager.switchBackground(2)">Waves</button>
-    <button class="btn btn-outline-light btn-sm" onclick="window.bgManager.switchBackground(3)">Text Flow</button>
 </div>
 
 <script src="./assets/js/sparkles.js"></script>
 <script src="./assets/js/all.js"></script>
 <script src="./assets/js/starfield.js"></script>
 <script src="./assets/js/backgrounds.js"></script>
+<script>
+    // Initialize the background manager
+    window.addEventListener('load', () => {
+        console.log('Window loaded, initializing background manager...');
+        try {
+            console.log('StarField available:', !!window.StarField);
+            window.bgManager = new BackgroundManager();
+            console.log('Background manager initialized:', !!window.bgManager);
+        } catch (error) {
+            console.error('Error initializing background manager:', error);
+        }
+    });
+
+    // Add click handlers with error logging
+    document.querySelectorAll('#bg-switcher button').forEach((button, index) => {
+        button.addEventListener('click', () => {
+            console.log(`Attempting to switch to background ${index}`);
+            try {
+                window.bgManager.switchBackground(index);
+            } catch (error) {
+                console.error(`Error switching to background ${index}:`, error);
+            }
+        });
+    });
+</script>
 <style>
   /* Add styles to ensure text readability over the starfield */
   #meth, #thingsilike, #socials {

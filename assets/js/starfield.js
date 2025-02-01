@@ -312,5 +312,5 @@ class StarField {
     }
 }
 
-// Remove the auto-initialization and export the class
-window.StarField = StarField; // Make it globally available for the background manager 
+// Make StarField available globally
+window.StarField = StarField; 

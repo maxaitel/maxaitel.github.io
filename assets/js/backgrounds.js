@@ -1,29 +1,53 @@
+// Make StarField available globally
+window.StarField = StarField;
+
 class BackgroundManager {
     constructor() {
-        // Wait for StarField to be available
-        if (!window.StarField) {
-            console.error('StarField not loaded');
-            return;
-        }
-
+        console.log('Initializing BackgroundManager...');
+        
         // List of available background effects
         this.effects = [
-            window.StarField,
-            DNAHelix,
-            WavePattern,
-            TextFlow
+            StarField,           // Index 0: Stars
+            DNAHelix,           // Index 1: DNA
+            WavePattern         // Index 2: Waves
         ];
         
         this.currentEffect = null;
         this.currentIndex = -1;
+        this.backgroundContainer = null;
         
-        // Always start with Stars (index 0)
+        // Create a container for backgrounds
+        this.createBackgroundContainer();
+        
+        console.log('Available effects:', this.effects.map(e => e.name));
+        
+        // Start with Stars (index 0)
         setTimeout(() => {
             this.switchBackground(0);
         }, 100);
 
         // Add rocket cursor
         this.addRocketCursor();
+    }
+
+    createBackgroundContainer() {
+        // Remove any existing container
+        const existingContainer = document.getElementById('background-container');
+        if (existingContainer) {
+            existingContainer.remove();
+        }
+
+        // Create new container
+        this.backgroundContainer = document.createElement('div');
+        this.backgroundContainer.id = 'background-container';
+        this.backgroundContainer.style.position = 'fixed';
+        this.backgroundContainer.style.top = '0';
+        this.backgroundContainer.style.left = '0';
+        this.backgroundContainer.style.width = '100%';
+        this.backgroundContainer.style.height = '100%';
+        this.backgroundContainer.style.zIndex = '-1';
+        this.backgroundContainer.style.overflow = 'hidden';
+        document.body.prepend(this.backgroundContainer);
     }
 
     addRocketCursor() {
@@ -63,39 +87,67 @@ class BackgroundManager {
     }
 
     switchBackground(index) {
+        console.log(`Switching to background ${index}`);
+        
         // Don't switch if it's the same background
         if (index === this.currentIndex) {
+            console.log('Already on this background');
             return;
         }
 
         // Clear existing canvas if any
         if (this.currentEffect) {
+            console.log('Cleaning up current effect');
             if (this.currentEffect.canvas) {
                 this.currentEffect.canvas.remove();
             }
-            // Stop animation loop if it exists
             if (this.currentEffect.stopAnimation) {
                 this.currentEffect.stopAnimation();
             }
+            this.currentEffect = null;
+        }
+
+        // Clear the background container
+        while (this.backgroundContainer.firstChild) {
+            this.backgroundContainer.removeChild(this.backgroundContainer.firstChild);
         }
         
-        // Create new effect
-        const SelectedEffect = this.effects[index];
-        this.currentEffect = new SelectedEffect();
-        this.currentIndex = index;
+        try {
+            // Create new effect
+            const SelectedEffect = this.effects[index];
+            if (!SelectedEffect) {
+                console.error(`No effect found at index ${index}`);
+                return;
+            }
+            
+            console.log(`Creating new instance of ${SelectedEffect.name}`);
+            this.currentEffect = new SelectedEffect();
+            
+            // Move the canvas into our container if it exists
+            if (this.currentEffect.canvas) {
+                if (this.currentEffect.canvas.parentNode !== this.backgroundContainer) {
+                    this.backgroundContainer.appendChild(this.currentEffect.canvas);
+                }
+            }
+            
+            this.currentIndex = index;
+        } catch (error) {
+            console.error('Error creating effect:', error);
+        }
     }
 }
+
+// Make BackgroundManager available globally
+window.BackgroundManager = BackgroundManager;
 
 class DNAHelix {
     constructor() {
         this.canvas = document.createElement('canvas');
-        this.canvas.style.position = 'fixed';
+        this.canvas.style.position = 'absolute';
         this.canvas.style.top = '0';
         this.canvas.style.left = '0';
         this.canvas.style.width = '100%';
         this.canvas.style.height = '100%';
-        this.canvas.style.zIndex = '-1';
-        document.body.prepend(this.canvas);
         
         this.ctx = this.canvas.getContext('2d');
         this.time = 0;
@@ -195,13 +247,11 @@ class DNAHelix {
 class WavePattern {
     constructor() {
         this.canvas = document.createElement('canvas');
-        this.canvas.style.position = 'fixed';
+        this.canvas.style.position = 'absolute';
         this.canvas.style.top = '0';
         this.canvas.style.left = '0';
         this.canvas.style.width = '100%';
         this.canvas.style.height = '100%';
-        this.canvas.style.zIndex = '-1';
-        document.body.prepend(this.canvas);
         
         this.ctx = this.canvas.getContext('2d');
         this.time = 0;
@@ -707,143 +757,4 @@ class NeonGridEffect {
             requestAnimationFrame(() => this.animate());
         }
     }
-}
-
-class TextFlow {
-    constructor() {
-        this.canvas = document.createElement('canvas');
-        this.canvas.style.position = 'fixed';
-        this.canvas.style.top = '0';
-        this.canvas.style.left = '0';
-        this.canvas.style.width = '100%';
-        this.canvas.style.height = '100%';
-        this.canvas.style.zIndex = '-1';
-        document.body.prepend(this.canvas);
-        
-        this.ctx = this.canvas.getContext('2d');
-        this.time = 0;
-        this.mouseX = 0;
-        this.mouseY = 0;
-        this.textRows = [];
-        this.chars = "⌘⌥⇧⌃↑→↓←⚡★▲▼◀▶△▽◁▷♠♣♥♦αβγδ01";
-        this.M = Math.floor(window.innerWidth / 14); // characters per row
-        
-        document.addEventListener('mousemove', (e) => {
-            this.mouseX = e.clientX;
-            this.mouseY = e.clientY;
-        });
-        
-        window.addEventListener('resize', () => this.resize());
-        this.resize();
-        this.isRunning = true;
-        this.animate();
-    }
-
-    resize() {
-        this.canvas.width = window.innerWidth;
-        this.canvas.height = window.innerHeight;
-        this.M = Math.floor(window.innerWidth / 14); // characters per row
-        
-        // Create text rows
-        this.textRows = [];
-        const rowCount = Math.floor(window.innerHeight / 20);
-        for (let i = 0; i < rowCount; i++) {
-            this.textRows.push({
-                text: new Array(this.M).fill(' '),
-                y: i * 20
-            });
-        }
-    }
-
-    stopAnimation() {
-        this.isRunning = false;
-    }
-
-    interpolateChar(a, b, t) {
-        const aIndex = this.chars.indexOf(a);
-        const bIndex = this.chars.indexOf(b);
-        if (aIndex === -1 || bIndex === -1) return a;
-        const newIndex = Math.round(aIndex * (1 - t) + bIndex * t);
-        return this.chars[newIndex % this.chars.length];
-    }
-
-    animate() {
-        if (!this.isRunning) return;
-        
-        this.time += 0.016;
-        this.ctx.fillStyle = 'rgba(0, 0, 0, 0.15)';
-        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
-
-        // Update and draw text
-        this.textRows.forEach((row, rowIndex) => {
-            let newText = '';
-            for (let i = 0; i < this.M; i++) {
-                const x = i * 14;
-                const y = row.y;
-                
-                // Calculate position in the flowing pattern
-                const dx = x - this.mouseX;
-                const dy = y - this.mouseY;
-                const dist = Math.sqrt(dx * dx + dy * dy);
-                const angle = Math.atan2(dy, dx);
-                
-                // Create flowing pattern
-                const flowX = x / this.canvas.width * 4;
-                const flowY = y / this.canvas.height * 4;
-                const noiseValue = Math.sin(flowX + this.time * 0.5) * Math.cos(flowY + this.time * 0.3);
-                
-                // Add mouse influence
-                const mouseInfluence = Math.max(0, 1 - dist / 300);
-                const patternValue = noiseValue + mouseInfluence;
-                
-                // Select character based on pattern
-                const charIndex = Math.floor((patternValue + 1) * this.chars.length / 2) % this.chars.length;
-                const char = this.chars[Math.abs(charIndex)];
-                
-                // Draw character
-                this.ctx.font = `14px monospace`;
-                const alpha = 0.3 + mouseInfluence * 0.7 + Math.abs(noiseValue) * 0.3;
-                this.ctx.fillStyle = `rgba(100, 200, 255, ${alpha})`;
-                this.ctx.fillText(char, x, y);
-                
-                newText += char;
-            }
-            row.text = newText.split('');
-        });
-
-        if (this.isRunning) {
-            requestAnimationFrame(() => this.animate());
-        }
-    }
-}
-
-// Initialize when the document is loaded and make it globally accessible
-document.addEventListener('DOMContentLoaded', () => {
-    window.bgManager = new BackgroundManager();
-});
-
-// Initialize a global bgManager object with background switching functionality.
-window.bgManager = (function() {
-  // Array of background image URLs (ensure these paths are correct for your hosting setup)
-  const backgrounds = [
-    'url("./assets/img/stars.jpg")',    // Background for "Stars"
-    'url("./assets/img/dna.jpg")',      // Background for "DNA"
-    'url("./assets/img/waves.jpg")',    // Background for "Waves"
-    'url("./assets/img/textflow.jpg")'  // Background for "Text Flow"
-  ];
-
-  // Function to switch background by updating the style of an element.
-  function switchBackground(index) {
-    if (index >= 0 && index < backgrounds.length) {
-      // Assuming your <body> element or other element has an id="a"
-      document.getElementById('a').style.backgroundImage = backgrounds[index];
-    } else {
-      console.error("Invalid background index: " + index);
-    }
-  }
-
-  // Expose the public API.
-  return {
-    switchBackground: switchBackground
-  };
-})(); 
+} 
