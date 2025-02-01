@@ -135,16 +135,41 @@ $(window).bind("beforeunload", function() {
 
 <!-- Background Switcher -->
 <div id="bg-switcher" style="position: fixed; bottom: 20px; right: 20px; z-index: 1000; background: rgba(0, 0, 0, 0.7); padding: 10px; border-radius: 10px; display: flex; gap: 10px; flex-wrap: wrap; max-width: 300px; justify-content: center;">
-    <button class="btn btn-outline-light btn-sm" onclick="window.bgManager.switchBackground(0)">Stars</button>
-    <button class="btn btn-outline-light btn-sm" onclick="window.bgManager.switchBackground(1)">DNA</button>
-    <button class="btn btn-outline-light btn-sm" onclick="window.bgManager.switchBackground(2)">Waves</button>
-    <button class="btn btn-outline-light btn-sm" onclick="window.bgManager.switchBackground(3)">Text Flow</button>
+    <button class="btn btn-outline-light btn-sm" onclick="window.bgManager?.switchBackground(0)">Stars</button>
+    <button class="btn btn-outline-light btn-sm" onclick="window.bgManager?.switchBackground(1)">DNA</button>
+    <button class="btn btn-outline-light btn-sm" onclick="window.bgManager?.switchBackground(2)">Waves</button>
+    <button class="btn btn-outline-light btn-sm" onclick="window.bgManager?.switchBackground(3)">Text Flow</button>
 </div>
 
-<script src="./assets/js/sparkles.js"></script>
-<script src="./assets/js/all.js"></script>
-<script src="./assets/js/starfield.js"></script>
-<script src="./assets/js/backgrounds.js"></script>
+<!-- Load scripts in correct order -->
+<script>
+    // Error handling for script loading
+    function loadScript(src) {
+        return new Promise((resolve, reject) => {
+            const script = document.createElement('script');
+            script.src = src;
+            script.onload = () => resolve();
+            script.onerror = () => reject(new Error(`Script load error for ${src}`));
+            document.body.appendChild(script);
+        });
+    }
+
+    // Load scripts in sequence
+    async function loadScripts() {
+        try {
+            await loadScript('./assets/js/sparkles.js');
+            await loadScript('./assets/js/all.js');
+            await loadScript('./assets/js/starfield.js');
+            await loadScript('./assets/js/backgrounds.js');
+            console.log('All scripts loaded successfully');
+        } catch (error) {
+            console.error('Script loading error:', error);
+        }
+    }
+
+    loadScripts();
+</script>
+
 <style>
   /* Add styles to ensure text readability over the starfield */
   #meth, #thingsilike, #socials {

@@ -1,8 +1,15 @@
 class BackgroundManager {
     constructor() {
+        // Ensure we're not initializing multiple times
+        if (window.bgManager) {
+            console.warn('BackgroundManager already initialized');
+            return window.bgManager;
+        }
+
         // Wait for StarField to be available
         if (!window.StarField) {
-            console.error('StarField not loaded');
+            console.error('StarField not loaded, retrying in 1 second...');
+            setTimeout(() => this.constructor(), 1000);
             return;
         }
 
@@ -24,6 +31,9 @@ class BackgroundManager {
 
         // Add rocket cursor
         this.addRocketCursor();
+
+        // Make instance globally available
+        window.bgManager = this;
     }
 
     addRocketCursor() {
@@ -63,26 +73,38 @@ class BackgroundManager {
     }
 
     switchBackground(index) {
-        // Don't switch if it's the same background
-        if (index === this.currentIndex) {
-            return;
-        }
+        try {
+            // Don't switch if it's the same background
+            if (index === this.currentIndex) {
+                return;
+            }
 
-        // Clear existing canvas if any
-        if (this.currentEffect) {
-            if (this.currentEffect.canvas) {
-                this.currentEffect.canvas.remove();
+            // Validate index
+            if (index < 0 || index >= this.effects.length) {
+                console.error('Invalid background index:', index);
+                return;
             }
-            // Stop animation loop if it exists
-            if (this.currentEffect.stopAnimation) {
-                this.currentEffect.stopAnimation();
+
+            // Clear existing canvas if any
+            if (this.currentEffect) {
+                if (this.currentEffect.canvas) {
+                    this.currentEffect.canvas.remove();
+                }
+                // Stop animation loop if it exists
+                if (this.currentEffect.stopAnimation) {
+                    this.currentEffect.stopAnimation();
+                }
             }
+            
+            // Create new effect
+            const SelectedEffect = this.effects[index];
+            this.currentEffect = new SelectedEffect();
+            this.currentIndex = index;
+
+            console.log('Successfully switched to background:', index);
+        } catch (error) {
+            console.error('Error switching background:', error);
         }
-        
-        // Create new effect
-        const SelectedEffect = this.effects[index];
-        this.currentEffect = new SelectedEffect();
-        this.currentIndex = index;
     }
 }
 
@@ -817,7 +839,10 @@ class TextFlow {
     }
 }
 
-// Initialize when the document is loaded and make it globally accessible
+// Initialize when the document is loaded
 document.addEventListener('DOMContentLoaded', () => {
-    window.bgManager = new BackgroundManager();
+    // Only initialize if not already initialized
+    if (!window.bgManager) {
+        window.bgManager = new BackgroundManager();
+    }
 }); 
