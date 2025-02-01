@@ -60,30 +60,11 @@
 </nav> 
 </div>
 <br><br>
-<img class="img-fluid" id="randomImage" src="./assets/png/horse.jpg" alt="A hamster warming up a spoon containing nothing bad">
-
-<script>
-  function getRandomImage() {
-      const directoryPath = './assets/png/';  // Directory where images are stored
-      let imageFilenames = [
-          'rt.png',
-          'horse.jpg',
-          'bigrat.jpg'
-      ];  // Add the full filenames of your images here
-
-      let randomIndex = Math.floor(Math.random() * imageFilenames.length);  // Generate a random index
-
-      return `${directoryPath}${imageFilenames[randomIndex]}`;  // Return full path to image
-  }
-
-  document.addEventListener('DOMContentLoaded', function () {
-      const imgElement = document.getElementById('randomImage');
-      imgElement.src = getRandomImage();  // Set the source of image dynamically
-  });
-</script>
-<div id="meth">
-<pre>
-  
+<div class="container">
+  <div class="row align-items-center">
+    <div class="col-md-8">
+      <div id="meth">
+        <pre>
   
 
 <strong>hi im max</strong>
@@ -91,15 +72,17 @@
   overwatch
   planes (fighter jets) - my fav fighter jet is the f35 (sexy)
   programming stuff (check out my <a href="https://maxaitel.org/lumen/">discord bot</a>)
-  robots (FIRST and other)
+  robots 
   sailing
-  i really like cool animations like <a href="https://www.youtube.com/watch?v=O7hgjuFfn3A">this one</a>
-
-
-<strong>COOL FACTS ABOUT ME:</strong>
-  im a new zealand citizen but ive lived in the US my whole life
-  im a top500 tank player in overwatch</pre>
-</div><br>
+  i really like cool animations like <a href="https://www.youtube.com/watch?v=DVXEYksoE6c">this one</a>
+        </pre>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <img class="img-fluid rounded" id="randomImage" src="./assets/png/horse.jpg" alt="A hamster warming up a spoon containing nothing bad" style="max-width: 300px;">
+    </div>
+  </div>
+</div>
 <hr>
 <div id="thingsilike">
 <pre>
@@ -149,9 +132,18 @@ $(window).bind("beforeunload", function() {
    }
 });
 </script>
+
+<!-- Background Switcher -->
+<div id="bg-switcher" style="position: fixed; bottom: 20px; right: 20px; z-index: 1000; background: rgba(0, 0, 0, 0.7); padding: 10px; border-radius: 10px; display: flex; gap: 10px; flex-wrap: wrap; max-width: 300px; justify-content: center;">
+    <button class="btn btn-outline-light btn-sm" onclick="window.bgManager.switchBackground(0)">Stars</button>
+    <button class="btn btn-outline-light btn-sm" onclick="window.bgManager.switchBackground(1)">DNA</button>
+    <button class="btn btn-outline-light btn-sm" onclick="window.bgManager.switchBackground(2)">Waves</button>
+</div>
+
 <script src="./assets/js/sparkles.js"></script>
 <script src="./assets/js/all.js"></script>
 <script src="./assets/js/starfield.js"></script>
+<script src="./assets/js/backgrounds.js"></script>
 <style>
   /* Add styles to ensure text readability over the starfield */
   #meth, #thingsilike, #socials {
@@ -165,6 +157,18 @@ $(window).bind("beforeunload", function() {
   }
   .navbar {
     background-color: rgba(33, 37, 41, 0.9) !important;
+  }
+  /* Style for background switcher buttons */
+  .btn-outline-light {
+    margin: 0 5px;
+    transition: all 0.3s ease;
+  }
+  .btn-outline-light:hover {
+    transform: scale(1.1);
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+  }
+  .btn-outline-light:focus {
+    box-shadow: none;
   }
 </style>
 </body>

@@ -227,6 +227,7 @@ class StarField {
 
         this.resize();
         window.addEventListener('resize', () => this.resize());
+        this.isRunning = true;
         this.animate();
     }
 
@@ -266,8 +267,14 @@ class StarField {
         }
     }
 
+    stopAnimation() {
+        this.isRunning = false;
+    }
+
     animate() {
-        const time = Date.now() * 0.00005; // Slower rotation
+        if (!this.isRunning) return;
+        
+        const time = Date.now() * 0.00005;
 
         // Update model view matrix
         const s = Math.sin(time);
@@ -299,11 +306,11 @@ class StarField {
         
         this.gl.drawArrays(this.gl.POINTS, 0, this.stars.length / 3);
 
-        requestAnimationFrame(() => this.animate());
+        if (this.isRunning) {
+            requestAnimationFrame(() => this.animate());
+        }
     }
 }
 
-// Initialize when the document is loaded
-document.addEventListener('DOMContentLoaded', () => {
-    new StarField();
-}); 
+// Remove the auto-initialization and export the class
+window.StarField = StarField; // Make it globally available for the background manager 
