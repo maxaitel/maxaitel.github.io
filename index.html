@@ -423,5 +423,485 @@ document.addEventListener("DOMContentLoaded", function() {
   });
 });
 </script>
+<div id="terminal-container" class="terminal-hidden">
+  <div id="terminal-header">
+    <span class="terminal-title">Terminal</span>
+    <span class="terminal-controls">
+      <button onclick="minimizeTerminal()">-</button>
+      <button onclick="toggleTerminal()">×</button>
+    </span>
+  </div>
+  <div id="terminal-body">
+    <div id="terminal-output"></div>
+    <div class="terminal-input-line">
+      <span class="terminal-prompt">visitor@maxsite:~$</span>
+      <input type="text" id="terminal-input" autocomplete="off" spellcheck="false">
+    </div>
+  </div>
+</div>
+
+<button id="show-terminal" onclick="toggleTerminal()">Open Terminal</button>
+
+<style>
+#terminal-container {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  width: 600px;
+  height: 400px;
+  background-color: rgba(0, 0, 0, 0.9);
+  border: 1px solid #30ff30;
+  border-radius: 5px;
+  font-family: 'Courier New', monospace;
+  color: #30ff30;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+}
+
+.terminal-hidden {
+  display: none !important;
+}
+
+#terminal-header {
+  padding: 5px 10px;
+  background-color: #30ff30;
+  color: black;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: move;
+}
+
+.terminal-controls button {
+  background: none;
+  border: none;
+  color: black;
+  cursor: pointer;
+  font-weight: bold;
+  margin-left: 5px;
+}
+
+#terminal-body {
+  flex-grow: 1;
+  padding: 10px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  scroll-behavior: smooth;
+}
+
+#terminal-output {
+  flex-grow: 1;
+  margin-bottom: 10px;
+  overflow-y: auto;
+  max-height: calc(100% - 30px);
+}
+
+.terminal-input-line {
+  display: flex;
+  align-items: center;
+}
+
+.terminal-prompt {
+  margin-right: 8px;
+}
+
+#terminal-input {
+  background: none;
+  border: none;
+  color: #30ff30;
+  font-family: 'Courier New', monospace;
+  font-size: 14px;
+  flex-grow: 1;
+  outline: none;
+}
+
+#show-terminal {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background-color: #30ff30;
+  color: black;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 5px;
+  cursor: pointer;
+  z-index: 999;
+  display: none; /* Hide by default */
+}
+
+.terminal-output-line {
+  margin: 5px 0;
+  word-wrap: break-word;
+  white-space: pre-wrap;
+  line-height: 1.4;
+}
+
+.command-group {
+  margin: 10px 0;
+  padding-left: 20px;
+}
+
+.command-title {
+  color: #30ff30;
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+.command-description {
+  color: #aaffaa;
+  padding-left: 15px;
+}
+
+.error-text {
+  color: #ff3030;
+}
+
+.success-text {
+  color: #30ff30;
+}
+
+/* Make terminal responsive on mobile */
+@media (max-width: 768px) {
+  #terminal-container {
+    width: 90%;
+    height: 300px;
+    bottom: 60px;
+    right: 5%;
+  }
+  
+  #show-terminal {
+    bottom: 10px;
+    right: 10px;
+  }
+}
+</style>
+
+<script>
+// Terminal functionality
+let commandHistory = [];
+let historyIndex = -1;
+let terminalMinimized = false;
+
+// Make terminal draggable
+const terminalContainer = document.getElementById('terminal-container');
+const terminalHeader = document.getElementById('terminal-header');
+
+let isDragging = false;
+let currentX;
+let currentY;
+let initialX;
+let initialY;
+let xOffset = 0;
+let yOffset = 0;
+
+terminalHeader.addEventListener('mousedown', dragStart);
+document.addEventListener('mousemove', drag);
+document.addEventListener('mouseup', dragEnd);
+
+function dragStart(e) {
+  initialX = e.clientX - xOffset;
+  initialY = e.clientY - yOffset;
+
+  if (e.target === terminalHeader) {
+    isDragging = true;
+  }
+}
+
+function drag(e) {
+  if (isDragging) {
+    e.preventDefault();
+    currentX = e.clientX - initialX;
+    currentY = e.clientY - initialY;
+    xOffset = currentX;
+    yOffset = currentY;
+
+    setTranslate(currentX, currentY, terminalContainer);
+  }
+}
+
+function dragEnd(e) {
+  initialX = currentX;
+  initialY = currentY;
+  isDragging = false;
+}
+
+function setTranslate(xPos, yPos, el) {
+  el.style.transform = `translate3d(${xPos}px, ${yPos}px, 0)`;
+}
+
+function toggleTerminal() {
+  const terminal = document.getElementById('terminal-container');
+  const showButton = document.getElementById('show-terminal');
+  terminal.classList.toggle('terminal-hidden');
+  showButton.style.display = terminal.classList.contains('terminal-hidden') ? 'block' : 'none';
+  if (!terminal.classList.contains('terminal-hidden')) {
+    document.getElementById('terminal-input').focus();
+  }
+}
+
+function minimizeTerminal() {
+  const terminal = document.getElementById('terminal-container');
+  const showButton = document.getElementById('show-terminal');
+  terminalMinimized = !terminalMinimized;
+  
+  if (terminalMinimized) {
+    terminal.style.height = '40px';
+    document.getElementById('terminal-body').style.display = 'none';
+  } else {
+    terminal.style.height = '400px';
+    document.getElementById('terminal-body').style.display = 'flex';
+  }
+}
+
+const commands = {
+  help: () => `Available Commands:
+┌─────────────────────────────────────────────────┐
+│  Command   │             Description            │
+├───────────────────────────────────────────────--┤
+  help         Show this help message
+  clear        Clear the terminal
+  joke         Get a random programming joke
+  weather      Check the weather (it's always sunny!)
+  rickroll     You know the rules...
+  contact      Get contact information
+  date         Show current date and time
+  echo [text]  Repeat the text
+  color [color] Change terminal text color
+└─────────────────────────────────────────────────┘`,
+  
+  joke: () => {
+    const jokes = [
+      "Why do programmers prefer dark mode? Because light attracts bugs!",
+      "Why did the programmer quit his job? Because he didn't get arrays!",
+      "What's a programmer's favorite hangout spot? The Foo Bar!",
+      "Why do programmers always mix up Christmas and Halloween? Because Oct 31 == Dec 25!",
+    ];
+    return jokes[Math.floor(Math.random() * jokes.length)];
+  },
+  
+  weather: () => "It's always sunny in the terminal!",
+  
+  rickroll: () => {
+    window.open('https://www.youtube.com/watch?v=dQw4w9WgXcQ', '_blank');
+    return "Never gonna give you up...";
+  },
+  
+  contact: () => `┌─ Contact Information ─────────────────┐
+│                                         │
+  • Discord:  tankplayer
+  • Twitter:  @aitelmax
+  • LinkedIn: max-aitel-b09498220
+│                                         │
+└─────────────────────────────────────────┘`,
+  
+  date: () => new Date().toLocaleString(),
+  
+  echo: (args) => args.join(' ') || 'Echo... echo... echo...',
+  
+  color: (args) => {
+    const color = args[0];
+    if (!color) return "Please specify a color!";
+    document.getElementById('terminal-output').style.color = color;
+    document.getElementById('terminal-input').style.color = color;
+    return `Terminal color changed to ${color}!`;
+  },
+  
+  clear: () => {
+    document.getElementById('terminal-output').innerHTML = '';
+    return '';
+  },
+
+  // Secret commands (not shown in help)
+  hack: () => {
+    const steps = [
+      "Initializing hack sequence...",
+      "Accessing mainframe...",
+      "Bypassing firewall...",
+      "Downloading data...",
+    ];
+    let output = "";
+    steps.forEach((step, i) => {
+      output += `${step}\n`;
+    });
+    return output;
+  },
+
+  matrix: () => {
+    document.body.style.fontFamily = 'Matrix';
+    setTimeout(() => {
+      document.body.style.fontFamily = '';
+    }, 5000);
+    return "Wake up, Neo...";
+  },
+
+  plane: () => `
+       __|__
+    --~_(o)_~--
+  `,
+
+  coffee: () => {
+    return `
+      ( (
+       ) )
+    .______.
+    |      |]
+    \\      /
+     \`----'
+    
+Need more coffee to code...`;
+  },
+
+  sudo: () => "Nice try!",
+
+  cowsay: (args) => {
+    const message = args.join(' ') || 'Moo!';
+    return `
+  _______________
+< ${message} >
+  ---------------
+         \\   ^__^
+          \\  (oo)\\_______
+             (__)\\       )\\/\\
+                 ||----w |
+                 ||     ||
+    `;
+  },
+
+  party: () => {
+    document.body.style.animation = "rainbow 2s linear infinite";
+    setTimeout(() => {
+      document.body.style.animation = "";
+    }, 5000);
+    return "🎉 PARTY TIME! 🎊";
+  },
+
+  flip: () => "(╯°□°)╯︵ ┻━┻",
+
+  unflip: () => "┬─┬ノ( º _ ºノ)",
+
+  shrug: () => "¯\\_(ツ)_/¯",
+
+  cat: () => `
+    /\\___/\\
+   (  o o  )
+   (  =^=  ) 
+    (--m--)`,
+
+  dog: () => `
+     / \\__
+    (    @\\___
+    /         O
+   /   (_____/
+  /_____/   U`,
+
+  cookie: () => "🍪",
+
+  spaceship: () => `
+    .  　　　。　　　　•　 　ﾟ　　。
+    　　.　　　.　　　  　　.　　　　　。　　 。　.
+    .　　 。　　　　　 ඞ 　　 . •
+    　 •　　　　　　ﾟ　　 　　　　　.
+    　　　　　.　　　. ,　　　　.　 .`,
+
+  vim: () => "You're now in vim! Just kidding... you can still exit this terminal",
+
+  konami: () => {
+    document.body.style.transform = "rotate(180deg)";
+    setTimeout(() => {
+      document.body.style.transform = "";
+    }, 3000);
+    return "⬆️⬆️⬇️⬇️⬅️➡️⬅️➡️BA";
+  },
+
+  pizza: () => "🍕",
+
+  binary: () => "01001000 01101001 00100001",
+
+  42: () => "Life, the Universe, and Everything",
+
+  // Add a style tag for the rainbow animation
+  rainbow: () => {
+    const style = document.createElement('style');
+    style.textContent = `
+      @keyframes rainbow {
+        0% { background-color: red; }
+        20% { background-color: orange; }
+        40% { background-color: yellow; }
+        60% { background-color: green; }
+        80% { background-color: blue; }
+        100% { background-color: purple; }
+      }
+    `;
+    document.head.appendChild(style);
+    return "Somewhere over the rainbow...";
+  },
+};
+
+function processCommand(command) {
+  const args = command.trim().split(' ');
+  const cmd = args.shift().toLowerCase();
+  
+  if (commands.hasOwnProperty(cmd)) {
+    return commands[cmd](args);
+  } else {
+    return `Command not found: ${cmd}. Type 'help' for available commands.`;
+  }
+}
+
+document.getElementById('terminal-input').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    const input = this.value;
+    const outputDiv = document.getElementById('terminal-output');
+    
+    // Add command to output
+    outputDiv.innerHTML += `<div class="terminal-output-line"><span class="terminal-prompt">visitor@maxsite:~$</span> ${input}</div>`;
+    
+    // Process command and show output
+    if (input.trim()) {
+      const output = processCommand(input);
+      outputDiv.innerHTML += `<div class="terminal-output-line">${output}</div>`;
+      commandHistory.push(input);
+      historyIndex = commandHistory.length;
+    }
+    
+    // Clear input and scroll to bottom
+    this.value = '';
+    
+    // Delay the scroll to ensure content is rendered
+    setTimeout(() => {
+      outputDiv.scrollTop = outputDiv.scrollHeight;
+    }, 0);
+  } else if (e.key === 'ArrowUp') {
+    e.preventDefault();
+    if (historyIndex > 0) {
+      historyIndex--;
+      this.value = commandHistory[historyIndex];
+    }
+  } else if (e.key === 'ArrowDown') {
+    e.preventDefault();
+    if (historyIndex < commandHistory.length - 1) {
+      historyIndex++;
+      this.value = commandHistory[historyIndex];
+    } else {
+      historyIndex = commandHistory.length;
+      this.value = '';
+    }
+  }
+});
+
+// Initialize terminal with welcome message
+document.addEventListener('DOMContentLoaded', function() {
+  const outputDiv = document.getElementById('terminal-output');
+  outputDiv.innerHTML = `<div class="terminal-output-line">Welcome to Max's Terminal! Type 'help' for available commands.</div>`;
+});
+
+function off() {
+  document.getElementById("overlay").style.display = "none";
+  // Show the terminal button after overlay is clicked
+  document.getElementById("show-terminal").style.display = "block";
+}
+</script>
 </body>
 </html>

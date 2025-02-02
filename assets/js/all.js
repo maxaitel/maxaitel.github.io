@@ -15,14 +15,3 @@ function off() {
     document.getElementById('musc').play();
     document.getElementById('musc').volume = 0.5;
 }
-
-function bell() {
-    var bell = './assets/mp3/bell.mp3';
-    var numba = Math.random();
-    if (numba <= 0.3) {
-        var audio = new Audio(bell);
-        audio.volume = 0.5
-        audio.play();
-    }
-}
-document.addEventListener('click', bell);
