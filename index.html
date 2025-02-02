@@ -144,6 +144,12 @@ document.getElementById("toastbtn").onclick = function() {
 <img src="./assets/png/me.png" alt="omg thats me" class="mx-auto d-block">
 <img src="./assets/png/spin.gif" alt="spinning" class="mx-auto d-block"><br>
 <script>
+function off() {
+  document.getElementById("overlay").style.display = "none";
+  document.querySelector(".nav").style.display = "block";  // Show navigation after overlay is clicked
+  document.getElementById("show-terminal").style.display = "block";
+}
+
 $(window).bind("beforeunload", function() {
    if(true) {
     document.getElementById('a').style.backgroundImage="url(https://media.tenor.com/jTKDchcLtrcAAAAd/walter-white-walter-crying.gif)";
@@ -896,12 +902,6 @@ document.addEventListener('DOMContentLoaded', function() {
   const outputDiv = document.getElementById('terminal-output');
   outputDiv.innerHTML = `<div class="terminal-output-line">Welcome to Max's Terminal! Type 'help' for available commands.</div>`;
 });
-
-function off() {
-  document.getElementById("overlay").style.display = "none";
-  // Show the terminal button after overlay is clicked
-  document.getElementById("show-terminal").style.display = "block";
-}
 </script>
 </body>
 </html>
