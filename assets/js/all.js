@@ -11,7 +11,8 @@ aniTitle = setInterval(function () {
 
 function off() {
     document.getElementById("overlay").style.display = "none";
-    document.getElementById("navv").style.display = "block";
+    document.querySelector(".nav").style.display = "block";
     document.getElementById('musc').play();
     document.getElementById('musc').volume = 0.5;
+    document.getElementById('show-terminal').style.display = "block";
 }

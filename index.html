@@ -147,7 +147,7 @@ document.getElementById("toastbtn").onclick = function() {
 function off() {
   document.getElementById("overlay").style.display = "none";
   document.querySelector(".nav").style.display = "block";  // Show navigation after overlay is clicked
-  document.getElementById("show-terminal").style.display = "block";
+  document.getElementById("show-terminal").style.display = "block";  // Show the terminal button
 }
 
 $(window).bind("beforeunload", function() {
@@ -166,7 +166,15 @@ $(window).bind("beforeunload", function() {
 document.addEventListener("DOMContentLoaded", function(){
   const messageContainer = document.getElementById("messageboard-messages");
   const form = document.getElementById("messageboard-form");
-
+  const outputDiv = document.getElementById('terminal-output');
+  const showButton = document.getElementById('show-terminal');
+  
+  // Set initial welcome message
+  outputDiv.innerHTML = `<div class="terminal-output-line">Welcome to Max's Terminal! Type 'help' for available commands.</div>`;
+  
+  // Ensure button starts hidden
+  showButton.style.display = 'none';
+  
   function fetchMessages(){
     fetch("https://sapi.getmeth.net/messageboard")
       .then(response => response.json())
@@ -895,12 +903,6 @@ document.getElementById('terminal-input').addEventListener('keydown', function(e
       this.value = '';
     }
   }
-});
-
-// Initialize terminal with welcome message
-document.addEventListener('DOMContentLoaded', function() {
-  const outputDiv = document.getElementById('terminal-output');
-  outputDiv.innerHTML = `<div class="terminal-output-line">Welcome to Max's Terminal! Type 'help' for available commands.</div>`;
 });
 </script>
 </body>
