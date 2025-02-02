@@ -51,7 +51,7 @@
         <li class="nav-item">
           <a class="nav-link justify-content-end" href="./gamba/">gambling</a>
         </li>
-        <li class="nav-item"></li>
+        <li class="nav-item">
           <a class="nav-link justify-content-end" href="./fluid/">fluid</a>
         </li>
       </ul>
@@ -59,19 +59,18 @@
   </div>
 </nav> 
 </div>
-<br><br>
 <div id="messageboard-section" class="container mt-3">
   <div class="card messageboard-card">
-    <div class="card-header">Message Board</div>
+    <div class="card-header">messageboard</div>
     <div class="card-body">
       <form id="messageboard-form">
         <div class="mb-3">
-          <input type="text" class="form-control" placeholder="Your name" id="messageboard-author">
+          <input type="text" class="form-control" placeholder="your name" id="messageboard-author">
         </div>
         <div class="mb-3">
-          <textarea class="form-control" placeholder="Your message" id="messageboard-message"></textarea>
+          <textarea class="form-control" placeholder="your message" id="messageboard-message"></textarea>
         </div>
-        <button type="submit" class="btn btn-primary">Post message</button>
+        <button type="submit" class="btn btn-primary">post message</button>
       </form>
       <hr>
       <div id="messageboard-messages">
@@ -219,15 +218,100 @@ document.addEventListener("DOMContentLoaded", function(){
   <div class="scroll-text">Scroll Down</div>
 </div>
 <style>
+  *, *:before, *:after { box-sizing: border-box; }
+  html, body { margin: 0; overflow-x: hidden; padding-top: 70px; }
+  img {
+    max-width: 100%;
+    height: auto;
+  }
+  /* Updated style for <pre> elements to allow wrapping on small devices */
+  pre {
+    color: white;
+    white-space: pre-wrap; /* ensures long lines will wrap on mobile */
+  }
+
+  /* Existing styles remain unchanged above... */
+
+  /* Add mobile-specific adjustments */
+  @media (max-width: 768px) {
+    .navbar a,
+    .navbar .nav-link {
+      font-size: 14px;
+      padding: 8px 10px;
+    }
+
+    .messageboard-card {
+      margin: 10px;
+      padding: 10px;
+    }
+
+    #messageboard-messages {
+      height: 200px; /* slightly smaller height on mobile */
+    }
+
+    .scroll-indicator {
+      bottom: 10px;
+    }
+
+    .navbar-collapse,
+    .navbar-nav {
+      width: 100%;
+      max-width: 100%;
+      overflow-x: hidden;
+    }
+    .navbar-collapse .navbar-nav {
+      flex-direction: column;
+    }
+    .navbar-nav .nav-link {
+      text-align: center;
+      display: block;
+      width: 100%;
+    }
+    .container-fluid {
+      padding-left: 0;
+      padding-right: 0;
+    }
+    .navbar .container-fluid {
+      width: 100%;
+    }
+    #navv {
+      width: 100%;
+      overflow-x: hidden;
+    }
+    .row {
+      margin-left: 0;
+      margin-right: 0;
+    }
+    .nav-item > .nav-link.justify-content-end {
+      text-align: center;
+      width: 100%;
+      box-sizing: border-box;
+    }
+    .collapse {
+      width: 100%;
+    }
+    .navbar, .navbar-collapse {
+      overflow: hidden;
+    }
+    .navbar-toggler {
+      margin-right: 0;
+    }
+    ul.navbar-nav, .navbar-nav li {
+      margin: 0;
+      padding: 0;
+    }
+    .navbar-nav .nav-item {
+      width: 100%;
+    }
+  }
+
+  /* Existing styles below... */
   /* Add styles to ensure text readability over the starfield */
   #meth, #thingsilike, #socials {
     background-color: rgba(0, 0, 0, 0.7);
     padding: 20px;
     border-radius: 10px;
     margin: 20px;
-  }
-  pre {
-    color: white;
   }
   .navbar {
     background-color: rgba(33, 37, 41, 0.9) !important;
