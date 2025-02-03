@@ -24,7 +24,7 @@
       left: 0;
       width: 100%;
       height: 100%;
-      background: rgba(0, 0, 0, 0.7);
+      background: #000000;
       color: white;
       display: flex;
       justify-content: center;
@@ -161,7 +161,8 @@ document.getElementById("toastbtn").onclick = function() {
 <img src="./assets/png/spin.gif" alt="spinning" class="mx-auto d-block"><br>
 <script>
 function off() {
-  document.getElementById("overlay").style.display = "none";
+  var overlay = document.getElementById("overlay");
+  if (overlay) { overlay.parentNode.removeChild(overlay); }
   document.querySelector(".nav").style.display = "block";  // Show navigation after overlay is clicked
   document.getElementById("show-terminal").style.display = "block";  // Show the terminal button
 }
