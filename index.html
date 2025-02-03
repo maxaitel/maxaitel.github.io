@@ -17,6 +17,22 @@
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.1/dist/js/bootstrap.bundle.min.js"></script>
   <script src="https://code.jquery.com/jquery-3.7.0.slim.js"></script>
   <link href="./assets/css/style.css" rel="stylesheet">
+  <style>
+    #overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.7);
+      color: white;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 1050;
+      cursor: pointer;
+    }
+  </style>
 </head>
 <body data-bs-spy="scroll" data-bs-target=".navbar" data-bs-offset="30" id="a">
 <div id="overlay" onclick="off()">
@@ -147,22 +163,8 @@ document.getElementById("toastbtn").onclick = function() {
 function off() {
   document.getElementById("overlay").style.display = "none";
   document.querySelector(".nav").style.display = "block";  // Show navigation after overlay is clicked
-  const showTerminalButton = document.getElementById("show-terminal");
-  if (showTerminalButton) {
-    showTerminalButton.style.display = "block";  // Show the terminal button
-  }
+  document.getElementById("show-terminal").style.display = "block";  // Show the terminal button
 }
-
-// Add initialization code
-document.addEventListener("DOMContentLoaded", function() {
-  const showTerminalButton = document.getElementById("show-terminal");
-  const overlay = document.getElementById("overlay");
-  
-  // If overlay is not visible (already clicked), show the terminal button
-  if (overlay && overlay.style.display === "none") {
-    showTerminalButton.style.display = "block";
-  }
-});
 
 $(window).bind("beforeunload", function() {
    if(true) {
@@ -920,39 +922,6 @@ document.getElementById('terminal-input').addEventListener('keydown', function(e
       historyIndex = commandHistory.length;
       this.value = '';
     }
-  }
-});
-
-document.addEventListener("DOMContentLoaded", function() {
-  // Initialize terminal elements
-  const terminal = document.getElementById('terminal-container');
-  const showButton = document.getElementById('show-terminal');
-  const terminalInput = document.getElementById('terminal-input');
-  
-  if (terminal && showButton && terminalInput) {
-    // Set up initial state
-    terminal.classList.add('terminal-hidden');
-    showButton.style.display = 'none';
-    
-    // Initialize command history
-    commandHistory = [];
-    historyIndex = -1;
-    terminalMinimized = false;
-    
-    // Set up terminal dragging
-    const terminalHeader = document.getElementById('terminal-header');
-    if (terminalHeader) {
-      terminalHeader.addEventListener('mousedown', dragStart);
-      document.addEventListener('mousemove', drag);
-      document.addEventListener('mouseup', dragEnd);
-    }
-    
-    // Focus input when terminal is shown
-    terminal.addEventListener('click', function() {
-      if (!terminalMinimized) {
-        terminalInput.focus();
-      }
-    });
   }
 });
 </script>
