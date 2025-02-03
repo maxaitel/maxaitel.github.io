@@ -429,6 +429,13 @@ document.addEventListener("DOMContentLoaded", function(){
 <script>
 document.addEventListener("DOMContentLoaded", function() {
   const scrollIndicator = document.querySelector('.scroll-indicator');
+  const showTerminalButton = document.getElementById('show-terminal');
+  
+  // Ensure terminal button is visible
+  if (showTerminalButton) {
+    showTerminalButton.style.display = 'block';
+  }
+  
   window.addEventListener('scroll', function(){
     const methElement = document.getElementById('meth');
     if(methElement) {
@@ -559,7 +566,7 @@ document.addEventListener("DOMContentLoaded", function() {
   border-radius: 5px;
   cursor: pointer;
   z-index: 999;
-  display: none; /* Hide by default */
+  display: block; /* Changed from 'none' to 'block' */
 }
 
 .terminal-output-line {
