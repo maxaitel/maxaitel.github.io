@@ -331,477 +331,587 @@ document.addEventListener("DOMContentLoaded", function() {
   });
 });
 </script>
-<div id="terminal-container" class="terminal-hidden">
-  <div id="terminal-header">
-    <span class="terminal-title">Terminal</span>
-    <span class="terminal-controls">
-      <button onclick="minimizeTerminal()">-</button>
-      <button onclick="toggleTerminal()">×</button>
-    </span>
-  </div>
-  <div id="terminal-body">
-    <div id="terminal-output"></div>
-    <div class="terminal-input-line">
-      <span class="terminal-prompt">visitor@maxsite:~$</span>
-      <input type="text" id="terminal-input" autocomplete="off" spellcheck="false">
+
+<div id="chat-widget" class="chat-hidden" aria-live="polite">
+  <div class="chat-header">
+    <div class="chat-title-wrap">
+      <span class="chat-title">Chat with Max's Model</span>
+      <span class="chat-status" id="chat-status">Idle</span>
     </div>
+    <div class="chat-header-buttons">
+      <button type="button" id="chat-clear" title="Reset conversation" aria-label="Reset conversation">CLR</button>
+      <button type="button" id="chat-settings-btn" title="Open settings" aria-label="Open chat settings">SET</button>
+      <button type="button" id="chat-minimize" title="Minimize chat" aria-label="Minimize chat">MIN</button>
+      <button type="button" id="chat-close" title="Close chat" aria-label="Close chat">X</button>
+    </div>
+  </div>
+  <div class="chat-body" id="chat-body">
+    <div id="chat-messages">
+      <div class="chat-message chat-message-system">
+        Say hi to start a conversation with the Ollama model.
+      </div>
+    </div>
+    <form id="chat-form" class="chat-input-row">
+      <input type="text" id="chat-input" placeholder="Ask me anything..." autocomplete="off" spellcheck="false" aria-label="Message input">
+      <button type="submit" id="chat-send">Send</button>
+    </form>
+  </div>
+  <div id="chat-settings" class="chat-settings-panel" hidden>
+    <label>
+      API endpoint
+      <input type="text" id="chat-endpoint" value="https://sapi.getmeth.net/chat" placeholder="https://host:port/chat">
+    </label>
+    <label>
+      Model name
+      <input type="text" id="chat-model" value="gpt-oss" placeholder="ollama model name">
+    </label>
+    <label>
+      API key (optional)
+      <input type="password" id="chat-api-key" value="website" placeholder="Stored in this browser only">
+    </label>
+    <div class="chat-settings-actions">
+      <button type="button" id="chat-save-settings">Save</button>
+      <button type="button" id="chat-cancel-settings">Close</button>
+    </div>
+    <p class="chat-settings-hint">
+      Use an HTTPS endpoint when this page loads over HTTPS, otherwise browsers block the request before it hits your proxy.
+    </p>
   </div>
 </div>
 
-<button id="show-terminal" onclick="toggleTerminal()">Open Terminal</button>
+<button id="open-chat" type="button" aria-label="Open chat widget">Chat with my AI</button>
 
 <style>
-#terminal-container {
+#chat-widget {
   position: fixed;
   bottom: 20px;
   right: 20px;
-  width: 600px;
-  height: 400px;
-  background-color: rgba(0, 0, 0, 0.9);
-  border: 1px solid #30ff30;
-  border-radius: 5px;
-  font-family: 'Courier New', monospace;
-  color: #30ff30;
-  z-index: 1000;
+  width: 360px;
+  max-height: 460px;
+  background: rgba(4, 5, 15, 0.96);
+  border: 1px solid rgba(130, 238, 255, 0.4);
+  border-radius: 16px;
+  box-shadow: 0 20px 45px rgba(0, 0, 0, 0.45);
+  font-family: "Space Mono", "Courier New", monospace;
+  color: #f5f6ff;
+  z-index: 1100;
   display: flex;
   flex-direction: column;
+  overflow: hidden;
+  backdrop-filter: blur(8px);
 }
 
-.terminal-hidden {
+.chat-hidden {
   display: none !important;
 }
 
-#terminal-header {
-  padding: 5px 10px;
-  background-color: #30ff30;
-  color: black;
+.chat-header {
+  padding: 10px 14px;
+  background: rgba(25, 28, 54, 0.95);
+  border-bottom: 1px solid rgba(130, 238, 255, 0.2);
   display: flex;
   justify-content: space-between;
   align-items: center;
-  cursor: move;
+  gap: 10px;
 }
 
-.terminal-controls button {
-  background: none;
+.chat-title-wrap {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.2;
+}
+
+.chat-title {
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.chat-status {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #8affff;
+}
+
+.chat-status[data-state="error"] {
+  color: #ff6b6b;
+}
+
+.chat-status[data-state="busy"] {
+  color: #ffd86b;
+}
+
+.chat-header-buttons button {
+  background: rgba(0, 0, 0, 0.3);
+  color: #f5f6ff;
   border: none;
-  color: black;
+  border-radius: 6px;
+  width: 38px;
+  height: 30px;
   cursor: pointer;
-  font-weight: bold;
-  margin-left: 5px;
+  font-size: 11px;
+  letter-spacing: 0.05em;
+  transition: background 0.2s ease;
 }
 
-#terminal-body {
-  flex-grow: 1;
-  padding: 10px;
+.chat-header-buttons button:hover {
+  background: rgba(138, 255, 255, 0.2);
+}
+
+.chat-body {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 12px 14px 14px;
+  overflow: hidden;
+  height: 100%;
+}
+
+.chat-collapsed .chat-body {
+  display: none;
+}
+
+#chat-messages {
+  flex: 1;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
-  scroll-behavior: smooth;
+  gap: 10px;
+  padding-right: 4px;
 }
 
-#terminal-output {
-  flex-grow: 1;
-  margin-bottom: 10px;
-  overflow-y: auto;
-  max-height: calc(100% - 30px);
-}
-
-.terminal-input-line {
+.chat-message {
   display: flex;
-  align-items: center;
+  flex-direction: column;
+  gap: 4px;
 }
 
-.terminal-prompt {
-  margin-right: 8px;
-}
-
-#terminal-input {
-  background: none;
-  border: none;
-  color: #30ff30;
-  font-family: 'Courier New', monospace;
+.chat-message-bubble {
+  padding: 10px 12px;
+  border-radius: 12px;
+  line-height: 1.4;
   font-size: 14px;
-  flex-grow: 1;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.chat-message-system .chat-message-bubble {
+  background: rgba(138, 255, 255, 0.1);
+  color: rgba(245, 246, 255, 0.8);
+}
+
+.chat-message-user .chat-message-bubble {
+  background: rgba(76, 195, 255, 0.25);
+  align-self: flex-end;
+}
+
+.chat-message-assistant .chat-message-bubble {
+  background: rgba(74, 255, 181, 0.12);
+  border: 1px solid rgba(74, 255, 181, 0.35);
+}
+
+.chat-message-role {
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.chat-input-row {
+  display: flex;
+  gap: 8px;
+}
+
+#chat-input {
+  flex: 1;
+  border: 1px solid rgba(130, 238, 255, 0.3);
+  background: rgba(10, 12, 26, 0.8);
+  color: #f5f6ff;
+  border-radius: 999px;
+  padding: 10px 16px;
   outline: none;
 }
 
-#show-terminal {
+#chat-input:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+#chat-send {
+  border: none;
+  border-radius: 999px;
+  padding: 10px 18px;
+  background: linear-gradient(120deg, #61f4de, #67a8ff);
+  color: #050609;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+}
+
+#chat-send:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+#open-chat {
   position: fixed;
   bottom: 20px;
   right: 20px;
-  background-color: #30ff30;
-  color: black;
   border: none;
-  padding: 8px 16px;
-  border-radius: 5px;
+  border-radius: 999px;
+  padding: 12px 20px;
+  background: linear-gradient(120deg, #61f4de, #67a8ff);
+  color: #050609;
+  font-weight: 700;
+  letter-spacing: 0.05em;
   cursor: pointer;
-  z-index: 999;
-  display: block; /* Changed from 'none' to 'block' */
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.35);
+  z-index: 1000;
 }
 
-.terminal-output-line {
-  margin: 5px 0;
-  word-wrap: break-word;
-  white-space: pre-wrap;
-  line-height: 1.4;
+.chat-settings-panel {
+  padding: 12px 14px 14px;
+  border-top: 1px solid rgba(130, 238, 255, 0.2);
+  background: rgba(5, 7, 16, 0.95);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
 
-.command-group {
-  margin: 10px 0;
-  padding-left: 20px;
+.chat-settings-panel label {
+  display: flex;
+  flex-direction: column;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  gap: 6px;
 }
 
-.command-title {
-  color: #30ff30;
-  font-weight: bold;
-  margin-bottom: 5px;
+.chat-settings-panel input {
+  border-radius: 8px;
+  border: 1px solid rgba(130, 238, 255, 0.3);
+  background: rgba(12, 14, 30, 0.8);
+  color: #f5f6ff;
+  padding: 8px 10px;
+  font-size: 14px;
 }
 
-.command-description {
-  color: #aaffaa;
-  padding-left: 15px;
+.chat-settings-actions {
+  display: flex;
+  gap: 10px;
 }
 
-.error-text {
-  color: #ff3030;
+.chat-settings-actions button {
+  flex: 1;
+  border-radius: 8px;
+  border: none;
+  padding: 8px 10px;
+  cursor: pointer;
+  font-weight: 600;
 }
 
-.success-text {
-  color: #30ff30;
+#chat-save-settings {
+  background: rgba(94, 255, 198, 0.2);
+  color: #5effc6;
+  border: 1px solid rgba(94, 255, 198, 0.4);
 }
 
-/* Make terminal responsive on mobile */
+#chat-cancel-settings {
+  background: rgba(255, 255, 255, 0.06);
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.chat-settings-hint {
+  margin: 0;
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.chat-busy #chat-status {
+  animation: pulse 1.2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0% { opacity: 0.4; }
+  50% { opacity: 1; }
+  100% { opacity: 0.4; }
+}
+
 @media (max-width: 768px) {
-  #terminal-container {
-    width: 90%;
-    height: 300px;
-    bottom: 60px;
-    right: 5%;
+  #chat-widget,
+  #open-chat {
+    right: 16px;
+    left: 16px;
   }
-  
-  #show-terminal {
-    bottom: 10px;
-    right: 10px;
+
+  #chat-widget {
+    width: auto;
+    bottom: 90px;
+    max-height: 75vh;
+  }
+
+  #open-chat {
+    width: calc(100% - 32px);
+    bottom: 12px;
   }
 }
 </style>
 
 <script>
-// Terminal functionality
-let commandHistory = [];
-let historyIndex = -1;
-let terminalMinimized = false;
-
-// Make terminal draggable
-const terminalContainer = document.getElementById('terminal-container');
-const terminalHeader = document.getElementById('terminal-header');
-
-let isDragging = false;
-let currentX;
-let currentY;
-let initialX;
-let initialY;
-let xOffset = 0;
-let yOffset = 0;
-
-terminalHeader.addEventListener('mousedown', dragStart);
-document.addEventListener('mousemove', drag);
-document.addEventListener('mouseup', dragEnd);
-
-function dragStart(e) {
-  initialX = e.clientX - xOffset;
-  initialY = e.clientY - yOffset;
-
-  if (e.target === terminalHeader) {
-    isDragging = true;
-  }
-}
-
-function drag(e) {
-  if (isDragging) {
-    e.preventDefault();
-    currentX = e.clientX - initialX;
-    currentY = e.clientY - initialY;
-    xOffset = currentX;
-    yOffset = currentY;
-
-    setTranslate(currentX, currentY, terminalContainer);
-  }
-}
-
-function dragEnd(e) {
-  initialX = currentX;
-  initialY = currentY;
-  isDragging = false;
-}
-
-function setTranslate(xPos, yPos, el) {
-  el.style.transform = `translate3d(${xPos}px, ${yPos}px, 0)`;
-}
-
-function toggleTerminal() {
-  const terminal = document.getElementById('terminal-container');
-  const showButton = document.getElementById('show-terminal');
-  terminal.classList.toggle('terminal-hidden');
-  showButton.style.display = terminal.classList.contains('terminal-hidden') ? 'block' : 'none';
-  if (!terminal.classList.contains('terminal-hidden')) {
-    document.getElementById('terminal-input').focus();
-  }
-}
-
-function minimizeTerminal() {
-  const terminal = document.getElementById('terminal-container');
-  const showButton = document.getElementById('show-terminal');
-  terminalMinimized = !terminalMinimized;
-  
-  if (terminalMinimized) {
-    terminal.style.height = '40px';
-    document.getElementById('terminal-body').style.display = 'none';
-  } else {
-    terminal.style.height = '400px';
-    document.getElementById('terminal-body').style.display = 'flex';
-  }
-}
-
-const commands = {
-  help: () => `Available Commands:
-┌─────────────────────────────────────────────────┐
-│  Command   │             Description            │
-├───────────────────────────────────────────────--┤
-  help         Show this help message
-  clear        Clear the terminal
-  joke         Get a random programming joke
-  weather      Check the weather (it's always sunny!)
-  rickroll     You know the rules...
-  contact      Get contact information
-  date         Show current date and time
-  echo [text]  Repeat the text
-  color [color] Change terminal text color
-└─────────────────────────────────────────────────┘`,
-  
-  joke: () => {
-    const jokes = [
-      "Why do programmers prefer dark mode? Because light attracts bugs!",
-      "Why did the programmer quit his job? Because he didn't get arrays!",
-      "What's a programmer's favorite hangout spot? The Foo Bar!",
-      "Why do programmers always mix up Christmas and Halloween? Because Oct 31 == Dec 25!",
-    ];
-    return jokes[Math.floor(Math.random() * jokes.length)];
-  },
-  
-  weather: () => "It's always sunny in the terminal!",
-  
-  rickroll: () => {
-    window.open('https://www.youtube.com/watch?v=dQw4w9WgXcQ', '_blank');
-    return "Never gonna give you up...";
-  },
-  
-  contact: () => `┌─ Contact Information ─────────────────┐
-│                                         │
-  • Discord:  tankplayer
-  • Twitter:  @aitelmax
-  • LinkedIn: max-aitel-b09498220
-│                                         │
-└─────────────────────────────────────────┘`,
-  
-  date: () => new Date().toLocaleString(),
-  
-  echo: (args) => args.join(' ') || 'Echo... echo... echo...',
-  
-  color: (args) => {
-    const color = args[0];
-    if (!color) return "Please specify a color!";
-    document.getElementById('terminal-output').style.color = color;
-    document.getElementById('terminal-input').style.color = color;
-    return `Terminal color changed to ${color}!`;
-  },
-  
-  clear: () => {
-    document.getElementById('terminal-output').innerHTML = '';
-    return '';
-  },
-
-  // you found the secret commands
-  // if you're reading this we should probably be friends
-  // hmu on discord: tankplayer
-  
-  // Secret commands (not shown in help)
-  hack: () => {
-    const steps = [
-      "Initializing hack sequence...",
-      "Accessing mainframe...",
-      "Bypassing firewall...",
-      "Downloading data...",
-    ];
-    let output = "";
-    steps.forEach((step, i) => {
-      output += `${step}\n`;
-    });
-    return output;
-  },
-
-  matrix: () => {
-    document.body.style.fontFamily = 'Matrix';
-    setTimeout(() => {
-      document.body.style.fontFamily = '';
-    }, 5000);
-    return "Wake up, Neo...";
-  },
-
-  plane: () => `
-       __|__
-    --~_(o)_~--
-  `,
-
-  coffee: () => {
-    return `
-      ( (
-       ) )
-    .______.
-    |      |]
-    \\      /
-     \`----'
-    
-Need more coffee to code...`;
-  },
-
-  sudo: () => "Nice try!",
-
-  cowsay: (args) => {
-    const message = args.join(' ') || 'Moo!';
-    return `
-  _______________
-< ${message} >
-  ---------------
-         \\   ^__^
-          \\  (oo)\\_______
-             (__)\\       )\\/\\
-                 ||----w |
-                 ||     ||
-    `;
-  },
-
-  party: () => {
-    document.body.style.animation = "rainbow 2s linear infinite";
-    setTimeout(() => {
-      document.body.style.animation = "";
-    }, 5000);
-    return "🎉 PARTY TIME! 🎊";
-  },
-
-  flip: () => "(╯°□°)╯︵ ┻━┻",
-
-  unflip: () => "┬─┬ノ( º _ ºノ)",
-
-  shrug: () => "¯\\_(ツ)_/¯",
-
-  cat: () => `
-    /\\___/\\
-   (  o o  )
-   (  =^=  ) 
-    (--m--)`,
-
-  dog: () => `
-     / \\__
-    (    @\\___
-    /         O
-   /   (_____/
-  /_____/   U`,
-
-  cookie: () => "🍪",
-
-  spaceship: () => `
-    .  　　　。　　　　•　 　ﾟ　　。
-    　　.　　　.　　　  　　.　　　　　。　　 。　.
-    .　　 。　　　　　 ඞ 　　 . •
-    　 •　　　　　　ﾟ　　 　　　　　.
-    　　　　　.　　　. ,　　　　.　 .`,
-
-  vim: () => "You're now in vim! Just kidding... you can still exit this terminal",
-
-  konami: () => {
-    document.body.style.transform = "rotate(180deg)";
-    setTimeout(() => {
-      document.body.style.transform = "";
-    }, 3000);
-    return "⬆️⬆️⬇️⬇️⬅️➡️⬅️➡️BA";
-  },
-
-  pizza: () => "🍕",
-
-  binary: () => "01001000 01101001 00100001",
-
-  42: () => "Life, the Universe, and Everything",
-
-  // Add a style tag for the rainbow animation
-  rainbow: () => {
-    const style = document.createElement('style');
-    style.textContent = `
-      @keyframes rainbow {
-        0% { background-color: red; }
-        20% { background-color: orange; }
-        40% { background-color: yellow; }
-        60% { background-color: green; }
-        80% { background-color: blue; }
-        100% { background-color: purple; }
-      }
-    `;
-    document.head.appendChild(style);
-    return "Somewhere over the rainbow...";
-  },
+const CHAT_DEFAULT_ENDPOINT = "https://sapi.getmeth.net/chat";
+const SYSTEM_PROMPT = "You are Max's friendly AI assistant. Be concise, helpful, and avoid sharing secrets.";
+const CHAT_DEFAULT_API_KEY = "website";
+const STORAGE_KEYS = {
+  model: "max-chat:model",
+  key: "max-chat:key",
+  endpoint: "max-chat:endpoint",
 };
 
-function processCommand(command) {
-  const args = command.trim().split(' ');
-  const cmd = args.shift().toLowerCase();
-  
-  if (commands.hasOwnProperty(cmd)) {
-    return commands[cmd](args);
-  } else {
-    return `Command not found: ${cmd}. Type 'help' for available commands.`;
+const chatWidget = document.getElementById("chat-widget");
+const openChatButton = document.getElementById("open-chat");
+const chatMessages = document.getElementById("chat-messages");
+const chatForm = document.getElementById("chat-form");
+const chatInput = document.getElementById("chat-input");
+const chatSend = document.getElementById("chat-send");
+const chatStatus = document.getElementById("chat-status");
+const chatSettingsPanel = document.getElementById("chat-settings");
+const chatEndpointInput = document.getElementById("chat-endpoint");
+const chatModelInput = document.getElementById("chat-model");
+const chatApiKeyInput = document.getElementById("chat-api-key");
+const chatCloseButton = document.getElementById("chat-close");
+const chatMinimizeButton = document.getElementById("chat-minimize");
+const chatSettingsButton = document.getElementById("chat-settings-btn");
+const chatClearButton = document.getElementById("chat-clear");
+const chatSaveSettings = document.getElementById("chat-save-settings");
+const chatCancelSettings = document.getElementById("chat-cancel-settings");
+
+let conversation = [
+  { role: "system", content: SYSTEM_PROMPT },
+];
+let busy = false;
+
+function loadSetting(key, fallback = "") {
+  try {
+    return localStorage.getItem(key) || fallback;
+  } catch (err) {
+    console.warn("Unable to read localStorage", err);
+    return fallback;
   }
 }
 
-document.getElementById('terminal-input').addEventListener('keydown', function(e) {
-  if (e.key === 'Enter') {
-    const input = this.value;
-    const outputDiv = document.getElementById('terminal-output');
-    
-    // Add command to output
-    outputDiv.innerHTML += `<div class="terminal-output-line"><span class="terminal-prompt">visitor@maxsite:~$</span> ${input}</div>`;
-    
-    // Process command and show output
-    if (input.trim()) {
-      const output = processCommand(input);
-      outputDiv.innerHTML += `<div class="terminal-output-line">${output}</div>`;
-      commandHistory.push(input);
-      historyIndex = commandHistory.length;
-    }
-    
-    // Clear input and scroll to bottom
-    this.value = '';
-    
-    // Delay the scroll to ensure content is rendered
-    setTimeout(() => {
-      outputDiv.scrollTop = outputDiv.scrollHeight;
-    }, 0);
-  } else if (e.key === 'ArrowUp') {
-    e.preventDefault();
-    if (historyIndex > 0) {
-      historyIndex--;
-      this.value = commandHistory[historyIndex];
-    }
-  } else if (e.key === 'ArrowDown') {
-    e.preventDefault();
-    if (historyIndex < commandHistory.length - 1) {
-      historyIndex++;
-      this.value = commandHistory[historyIndex];
+function saveSetting(key, value) {
+  try {
+    if (value) {
+      localStorage.setItem(key, value);
     } else {
-      historyIndex = commandHistory.length;
-      this.value = '';
+      localStorage.removeItem(key);
     }
+  } catch (err) {
+    console.warn("Unable to write localStorage", err);
+  }
+}
+
+function trimConversation(limit = 20) {
+  if (conversation.length <= limit) {
+    return;
+  }
+  const system = conversation[0];
+  conversation = [system, ...conversation.slice(conversation.length - (limit - 1))];
+}
+
+function setStatus(label, state = "idle") {
+  chatWidget.classList.toggle("chat-busy", state === "busy");
+  chatStatus.dataset.state = state;
+  chatStatus.textContent = label;
+}
+
+function sanitizeText(text) {
+  return text
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
+}
+
+function renderMessage(role, content) {
+  const item = document.createElement("div");
+  item.className = `chat-message chat-message-${role}`;
+
+  if (role !== "system") {
+    const roleLabel = document.createElement("span");
+    roleLabel.className = "chat-message-role";
+    roleLabel.textContent = role === "user" ? "You" : "Assistant";
+    item.appendChild(roleLabel);
+  }
+
+  const bubble = document.createElement("div");
+  bubble.className = "chat-message-bubble";
+  bubble.innerHTML = sanitizeText(content).replace(/\n/g, "<br>");
+  item.appendChild(bubble);
+  chatMessages.appendChild(item);
+  chatMessages.scrollTop = chatMessages.scrollHeight;
+}
+
+function resetConversation() {
+  conversation = [{ role: "system", content: SYSTEM_PROMPT }];
+  chatMessages.innerHTML = "";
+  const systemMsg = document.createElement("div");
+  systemMsg.className = "chat-message chat-message-system";
+  const bubble = document.createElement("div");
+  bubble.className = "chat-message-bubble";
+  bubble.textContent = "Conversation cleared. Ask something else!";
+  systemMsg.appendChild(bubble);
+  chatMessages.appendChild(systemMsg);
+  setStatus("Ready");
+}
+
+function getEndpoint() {
+  return (chatEndpointInput.value || CHAT_DEFAULT_ENDPOINT).trim();
+}
+
+async function sendToModel(message) {
+  if (busy || !message.trim()) {
+    return;
+  }
+
+  busy = true;
+  setStatus("Thinking...", "busy");
+  chatInput.disabled = true;
+  chatSend.disabled = true;
+
+  renderMessage("user", message);
+  conversation.push({ role: "user", content: message });
+  trimConversation();
+
+  const endpoint = getEndpoint();
+
+  if (window.location.protocol === "https:" && endpoint.startsWith("http://")) {
+    renderMessage(
+      "assistant",
+      "Can't call an insecure (http://) endpoint from an HTTPS page. Switch the proxy to HTTPS or open this site over HTTP."
+    );
+    setStatus("Blocked", "error");
+    busy = false;
+    chatInput.disabled = false;
+    chatSend.disabled = false;
+    return;
+  }
+
+  const payload = {
+    model: (chatModelInput.value || "gpt-oss").trim(),
+    messages: conversation,
+  };
+
+  const headers = {
+    "Content-Type": "application/json",
+  };
+
+  const apiKey = (chatApiKeyInput.value || CHAT_DEFAULT_API_KEY).trim();
+  if (apiKey) {
+    headers.Authorization = `Bearer ${apiKey}`;
+    headers["X-API-Key"] = apiKey;
+  }
+
+  try {
+    const response = await fetch(endpoint, {
+      method: "POST",
+      headers,
+      body: JSON.stringify(payload),
+    });
+
+    if (!response.ok) {
+      throw new Error(`API returned ${response.status}`);
+    }
+
+    const data = await response.json();
+    const assistantContent = data?.message?.content;
+    if (!assistantContent) {
+      throw new Error("No message returned by model");
+    }
+
+    renderMessage("assistant", assistantContent);
+    conversation.push({ role: "assistant", content: assistantContent });
+    trimConversation();
+    setStatus("Ready");
+  } catch (error) {
+    console.error("Chat error", error);
+    renderMessage("assistant", `Something went wrong: ${error.message}`);
+    setStatus("Error", "error");
+  } finally {
+    busy = false;
+    chatInput.disabled = false;
+    chatSend.disabled = false;
+    chatInput.focus();
+  }
+}
+
+openChatButton.addEventListener("click", () => {
+  chatWidget.classList.remove("chat-hidden");
+  openChatButton.classList.add("chat-hidden");
+  chatInput.focus();
+});
+
+chatCloseButton.addEventListener("click", () => {
+  chatWidget.classList.add("chat-hidden");
+  openChatButton.classList.remove("chat-hidden");
+});
+
+chatMinimizeButton.addEventListener("click", () => {
+  chatWidget.classList.toggle("chat-collapsed");
+});
+
+chatSettingsButton.addEventListener("click", () => {
+  if (chatSettingsPanel.hasAttribute("hidden")) {
+    chatSettingsPanel.removeAttribute("hidden");
+  } else {
+    chatSettingsPanel.setAttribute("hidden", "hidden");
   }
 });
+
+chatSaveSettings.addEventListener("click", () => {
+  saveSetting(STORAGE_KEYS.model, chatModelInput.value.trim());
+  saveSetting(STORAGE_KEYS.key, chatApiKeyInput.value.trim());
+  saveSetting(STORAGE_KEYS.endpoint, chatEndpointInput.value.trim());
+  chatSettingsPanel.setAttribute("hidden", "hidden");
+});
+
+chatCancelSettings.addEventListener("click", () => {
+  chatSettingsPanel.setAttribute("hidden", "hidden");
+  chatModelInput.value = loadSetting(STORAGE_KEYS.model, chatModelInput.value);
+  chatApiKeyInput.value = loadSetting(STORAGE_KEYS.key, CHAT_DEFAULT_API_KEY);
+  chatEndpointInput.value = loadSetting(
+    STORAGE_KEYS.endpoint,
+    chatEndpointInput.value || CHAT_DEFAULT_ENDPOINT
+  );
+});
+
+chatClearButton.addEventListener("click", resetConversation);
+
+chatForm.addEventListener("submit", (event) => {
+  event.preventDefault();
+  const message = chatInput.value.trim();
+  chatInput.value = "";
+  sendToModel(message);
+});
+
+chatInput.addEventListener("keydown", (event) => {
+  if (event.key === "Enter" && !event.shiftKey) {
+    event.preventDefault();
+    chatForm.requestSubmit();
+  }
+});
+
+window.addEventListener("DOMContentLoaded", () => {
+  const savedModel = loadSetting(STORAGE_KEYS.model);
+  if (savedModel) {
+    chatModelInput.value = savedModel;
+  }
+  const savedKey = loadSetting(STORAGE_KEYS.key, CHAT_DEFAULT_API_KEY);
+  chatApiKeyInput.value = savedKey || CHAT_DEFAULT_API_KEY;
+  const savedEndpoint = loadSetting(STORAGE_KEYS.endpoint, CHAT_DEFAULT_ENDPOINT);
+  chatEndpointInput.value = savedEndpoint || CHAT_DEFAULT_ENDPOINT;
+  setStatus("Ready");
+});
 </script>
+
 </body>
 </html>
