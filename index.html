@@ -69,26 +69,6 @@
   </div>
 </nav> 
 </div>
-<div id="messageboard-section" class="container mt-3">
-  <div class="card messageboard-card">
-    <div class="card-header">messageboard</div>
-    <div class="card-body">
-      <form id="messageboard-form">
-        <div class="mb-3">
-          <input type="text" class="form-control" placeholder="your name" id="messageboard-author">
-        </div>
-        <div class="mb-3">
-          <textarea class="form-control" placeholder="your message" id="messageboard-message"></textarea>
-        </div>
-        <button type="submit" class="btn btn-primary">post message</button>
-      </form>
-      <hr>
-      <div id="messageboard-messages">
-         <!-- messages will appear here -->
-      </div>
-    </div>
-  </div>
-</div>
 <div class="container">
   <div class="row align-items-center">
     <div class="col-md-8">
@@ -175,67 +155,16 @@ $(window).bind("beforeunload", function() {
 <script src="./assets/js/backgrounds.js"></script>
 <script>
 document.addEventListener("DOMContentLoaded", function(){
-  const messageContainer = document.getElementById("messageboard-messages");
-  const form = document.getElementById("messageboard-form");
   const outputDiv = document.getElementById('terminal-output');
   const showButton = document.getElementById('show-terminal');
-  
-  // Set initial welcome message
-  outputDiv.innerHTML = `<div class="terminal-output-line">Welcome to Max's Terminal! Type 'help' for available commands.</div>`;
-  
-  // Ensure button starts hidden
-  showButton.style.display = 'none';
-  
-  function fetchMessages(){
-    fetch("https://sapi.getmeth.net/messageboard")
-      .then(response => response.json())
-      .then(data => {
-        messageContainer.innerHTML = "";
-        data.slice().reverse().forEach(msg => {
-          const msgDiv = document.createElement("div");
-          msgDiv.className = "message-item";
-          msgDiv.innerHTML = `<strong>${msg.author}:</strong> ${msg.message} <br><small>${msg.timestamp}</small>`;
-          messageContainer.appendChild(msgDiv);
-        });
-      })
-      .catch(err => {
-        messageContainer.innerHTML = "<div class='text-danger'>Failed to load messages.</div>";
-        console.error(err);
-      });
+
+  if (outputDiv) {
+    outputDiv.innerHTML = `<div class="terminal-output-line">Welcome to Max's Terminal! Type 'help' for available commands.</div>`;
   }
 
-  // Load messages on page load
-  fetchMessages();
-
-  // Handle form submission
-  form.addEventListener("submit", function(e) {
-    e.preventDefault();
-    const author = document.getElementById("messageboard-author").value || "Anonymous";
-    const message = document.getElementById("messageboard-message").value;
-    if(!message.trim()){
-      alert("Please enter a valid message");
-      return;
-    }
-    fetch("https://sapi.getmeth.net/messageboard", {
-      method: "POST",
-      headers: {"Content-Type": "application/json"},
-      body: JSON.stringify({author: author, message: message})
-    })
-    .then(response => response.json())
-    .then(data => {
-      if(data.status && data.status === "success"){
-        document.getElementById("messageboard-author").value = "";
-        document.getElementById("messageboard-message").value = "";
-        fetchMessages();
-      } else {
-        alert("Message submission failed: " + (data.error || "Unknown error"));
-      }
-    })
-    .catch(err => {
-      alert("An error occurred while posting your message.");
-      console.error(err);
-    });
-  });
+  if (showButton) {
+    showButton.style.display = 'none';
+  }
 });
 </script>
 <div class="scroll-indicator" onclick="window.scrollTo({ top: window.innerHeight, behavior: 'smooth' })">
@@ -263,15 +192,6 @@ document.addEventListener("DOMContentLoaded", function(){
     .navbar .nav-link {
       font-size: 14px;
       padding: 8px 10px;
-    }
-
-    .messageboard-card {
-      margin: 10px;
-      padding: 10px;
-    }
-
-    #messageboard-messages {
-      height: 200px; /* slightly smaller height on mobile */
     }
 
     .scroll-indicator {
@@ -340,50 +260,6 @@ document.addEventListener("DOMContentLoaded", function(){
   }
   .navbar {
     background-color: rgba(33, 37, 41, 0.9) !important;
-  }
-  .messageboard-card {
-    background-color: rgba(0, 0, 0, 0.7) !important;
-    color: white;
-    border-radius: 10px;
-    padding: 15px;
-  }
-  #messageboard-messages {
-    height: 300px;
-    overflow-y: scroll;
-  }
-  /* Custom scrollbar styling */
-  #messageboard-messages::-webkit-scrollbar {
-    width: 12px;
-  }
-  #messageboard-messages::-webkit-scrollbar-track {
-    background: rgba(0, 0, 0, 0.1);
-    border-radius: 10px;
-  }
-  #messageboard-messages::-webkit-scrollbar-thumb {
-    background-color: rgba(33, 37, 41, 0.7);
-    border-radius: 10px;
-    border: 3px solid transparent;
-  }
-  .message-item {
-    background-color: rgba(0, 0, 0, 0.7);
-    color: white;
-    padding: 20px;
-    border-radius: 10px;
-    margin-bottom: 20px;
-  }
-  .messageboard-card .form-control {
-    background-color: rgba(0, 0, 0, 0.5);
-    color: white;
-    border: 1px solid rgba(255, 255, 255, 0.2);
-  }
-  .messageboard-card .form-control::placeholder {
-    color: rgba(255, 255, 255, 0.7);
-  }
-  .messageboard-card .form-control:focus {
-    background-color: rgba(0, 0, 0, 0.7);
-    color: white;
-    border-color: rgba(255, 255, 255, 0.5);
-    box-shadow: none;
   }
   .scroll-indicator {
     position: fixed;
