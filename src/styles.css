@@ -1,3 +1,7 @@
+@layer theme, base, components, utilities;
+@import "tailwindcss/theme.css" layer(theme);
+@import "tailwindcss/utilities.css" layer(utilities);
+
 :root {
   --bg: #f5f2ee;
   --bg-elevated: rgba(255, 255, 255, 0.56);
@@ -535,5 +539,4 @@ h3 {
     gap: 0.35rem;
     padding-bottom: 1.6rem;
   }
-
 }

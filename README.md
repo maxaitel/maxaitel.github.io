@@ -1,20 +1,33 @@
 # Max Aitel Personal Site
 
-Static personal website built for GitHub Pages.
+Personal website built with Vite, React, and Tailwind CSS.
 
 ## Run locally
 
 ```bash
-python3 -m http.server 4173
+npm install
+npm run dev
 ```
 
-Then open [http://localhost:4173](http://localhost:4173).
+Then open the local Vite URL printed in the terminal.
+
+## Build
+
+```bash
+npm run build
+```
+
+The production output is written to `dist/`.
 
 ## Deploy on GitHub Pages
 
-1. Push this directory to the repository you want to publish.
-2. In GitHub, open `Settings` -> `Pages`.
-3. Set the source to deploy from the root of the default branch.
-4. If you are using `maxaitel.org`, keep the included `CNAME` file.
+Push to `main` and GitHub Actions will build and deploy the site to GitHub Pages.
 
-No build step is required.
+The custom domain file lives in `public/CNAME` and is copied into the build output.
+`public/.nojekyll` is also copied into the build output for GitHub Pages compatibility.
+
+## Stack
+
+- Vite
+- React
+- Tailwind CSS
