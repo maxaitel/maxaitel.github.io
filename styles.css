@@ -160,6 +160,8 @@ h3 {
 .hero-copy {
   grid-area: copy;
   max-width: 40rem;
+  justify-self: center;
+  text-align: center;
 }
 
 .hero h1 {
@@ -186,6 +188,7 @@ h3 {
 .hero-text {
   max-width: 24rem;
   margin-top: 2rem;
+  margin-inline: auto;
   color: var(--muted);
 }
 
@@ -193,6 +196,7 @@ h3 {
   display: flex;
   gap: 1.5rem;
   margin-top: 2.2rem;
+  justify-content: center;
 }
 
 .text-link,
