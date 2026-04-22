@@ -346,13 +346,16 @@ h3 {
 .section-contact .section-content {
   display: flex;
   flex-direction: column;
-  gap: 1.8rem;
+  gap: 0.35rem;
 }
 
 .contact-links {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 1.5rem 2rem;
+  display: grid;
+  grid-template-columns: repeat(3, max-content);
+  gap: 0.7rem 1.75rem;
+  max-width: 34rem;
+  align-items: start;
+  justify-content: start;
 }
 
 .site-footer {
@@ -445,11 +448,15 @@ h3 {
   }
 
   .hero-actions,
-  .contact-links,
   .footer-links,
   .site-footer {
     flex-direction: column;
     align-items: flex-start;
+  }
+
+  .contact-links {
+    grid-template-columns: max-content;
+    width: 100%;
   }
 
   .experience-item {
