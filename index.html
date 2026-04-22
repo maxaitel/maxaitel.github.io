@@ -1,917 +1,204 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <title>omg max site</title>
-  <link rel="icon" type="image/x-icon" href="./flask.ico">
-  <meta name="title" content="omg max websuite">
-  <meta name="description" content="">
-  <meta name="theme-color" content="#000000">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta charset="utf-8">
-  <meta property="og:type" content="website">
-  <meta property="og:url" content="maxaitel.org">
-  <meta property="og:title" content="website! its maxs">
-  <meta property="og:description" content="max website omg i should totally click opn this">
-  <meta property="og:image" content="https://maxaitel.org/assets/png/rt.png">
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.1/dist/css/bootstrap.min.css" rel="stylesheet">
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.1/dist/js/bootstrap.bundle.min.js"></script>
-  <script src="https://code.jquery.com/jquery-3.7.0.slim.js"></script>
-  <link href="./assets/css/style.css" rel="stylesheet">
-  <style>
-    #overlay {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: #000000;
-      color: white;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      z-index: 1050;
-      cursor: pointer;
-    }
-  </style>
-</head>
-<body data-bs-spy="scroll" data-bs-target=".navbar" data-bs-offset="30" id="a">
-<div id="overlay" onclick="off()">
-  	<div id="text">Click To Enter</div>
-</div>
-<audio id="musci" src="./assets/mp3/thing.mp3"></audio>
-<audio id="musc" loop src="./assets/mp3/music.mp3"></audio>
-<div id="navv" class="nav">
-<nav class="navbar navbar-expand-sm bg-dark navbar-dark fixed-top">
-  <div class="container-fluid">
-    <a class="navbar-brand" href="#">Home</a>
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#collapsibleNavbar">
-      <span class="navbar-toggler-icon"></span>
-    </button>
-    <div class="collapse navbar-collapse" id="collapsibleNavbar">
-      <ul class="navbar-nav">
-        <li class="nav-item">
-          <a class="nav-link" href="#meth">about me</a>
-        </li>    
-        <li class="nav-item">
-          <a class="nav-link" href="#thingsilike">things i like</a>
-        </li>    
-        <li class="nav-item">
-          <a class="nav-link" href="#socials">my socials</a>
-        </li>  
-        <li class="nav-item">
-          <a class="nav-link justify-content-end" href="./gamba/">gambling</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link justify-content-end" href="./fluid/">fluid</a>
-        </li>
-      </ul>
-    </div>
-  </div>
-</nav> 
-</div>
-<div class="container">
-  <div class="row align-items-center">
-    <div class="col-md-8">
-      <div id="meth">
-        <pre>
-  
-
-<strong>hi im max</strong>
-  things i like doing:
-  overwatch
-  planes (fighter jets) - my fav fighter jet is the f35 (sexy)
-  programming stuff (check out my <a href="https://maxaitel.org/lumen/">discord bot</a>)
-  robots 
-  sailing
-  i really like cool animations like <a href="https://www.youtube.com/watch?v=DVXEYksoE6c">this one</a>
-        </pre>
-      </div>
-    </div>
-    <div class="col-md-4">
-      <img class="img-fluid rounded" id="randomImage" src="./assets/png/horse.jpg" alt="A hamster warming up a spoon containing nothing bad" style="max-width: 300px;">
-    </div>
-  </div>
-</div>
-<hr>
-<div id="thingsilike">
-<pre>
-<strong>here are some things i like!</strong><br>
-  <a href="https://miamibeachbots.org">My FRC team that i mentor now.</a><br>
-  <a href="https://www.youtube.com/watch?v=Cu2W4hxMytk">Look at this cool guy and his plane.</a><br></pre>
-</div><br>
-<hr>
-<div id="socials">
-<pre>
-<strong>these are my socials:</strong><br>
-  discord - tankplayer<br>
-  <a href="https://www.twitch.tv/maxman126">twitch</a><br>
-  <a href="https://x.com/aitelmax?lang=en">twitter</a><br>
-  <a href="https://www.linkedin.com/in/max-aitel-b09498220/">linked-in</a></pre>
-</div><br>
-<hr>
-<div class="container mt-3">
-  <button type="button" class="btn btn-primary" id="toastbtn">Surprise</button>
-  <div class="toast">
-    <div class="toast-header">
-      <strong class="me-auto">Free robux</strong>
-      <button type="button" class="btn-close" data-bs-dismiss="toast"></button>
-    </div>
-    <div class="toast-body">
-      <p>Claim your free robux <a href="./robuxgen/">here</a></p>
-    </div>
-  </div>
-</div>
-<script>
-document.getElementById("toastbtn").onclick = function() {
-  var toastElList = [].slice.call(document.querySelectorAll('.toast'))
-  var toastList = toastElList.map(function(toastEl) {
-    return new bootstrap.Toast(toastEl)
-  })
-  toastList.forEach(toast => toast.show()) 
-}
-</script>
-<br>
-<img src="./assets/png/me.png" alt="omg thats me" class="mx-auto d-block">
-<img src="./assets/png/spin.gif" alt="spinning" class="mx-auto d-block"><br>
-<script>
-function off() {
-  var overlay = document.getElementById("overlay");
-  if (overlay) { overlay.parentNode.removeChild(overlay); }
-  document.querySelector(".nav").style.display = "block";  // Show navigation after overlay is clicked
-  document.getElementById("show-terminal").style.display = "block";  // Show the terminal button
-}
-
-$(window).bind("beforeunload", function() {
-   if(true) {
-    document.getElementById('a').style.backgroundImage="url(https://media.tenor.com/jTKDchcLtrcAAAAd/walter-white-walter-crying.gif)";
-    return "noo dont leave :((((";
-   }
-});
-</script>
-
-<script src="./assets/js/sparkles.js"></script>
-<script src="./assets/js/all.js"></script>
-<script src="./assets/js/starfield.js"></script>
-<script src="./assets/js/backgrounds.js"></script>
-<script>
-document.addEventListener("DOMContentLoaded", function(){
-  const outputDiv = document.getElementById('terminal-output');
-  const showButton = document.getElementById('show-terminal');
-
-  if (outputDiv) {
-    outputDiv.innerHTML = `<div class="terminal-output-line">Welcome to Max's Terminal! Type 'help' for available commands.</div>`;
-  }
-
-  if (showButton) {
-    showButton.style.display = 'none';
-  }
-});
-</script>
-<div class="scroll-indicator" onclick="window.scrollTo({ top: window.innerHeight, behavior: 'smooth' })">
-  <div class="arrow"></div>
-  <div class="scroll-text">Scroll Down</div>
-</div>
-<style>
-  *, *:before, *:after { box-sizing: border-box; }
-  html, body { margin: 0; overflow-x: hidden; padding-top: 70px; }
-  img {
-    max-width: 100%;
-    height: auto;
-  }
-  /* Updated style for <pre> elements to allow wrapping on small devices */
-  pre {
-    color: white;
-    white-space: pre-wrap; /* ensures long lines will wrap on mobile */
-  }
-
-  /* Existing styles remain unchanged above... */
-
-  /* Add mobile-specific adjustments */
-  @media (max-width: 768px) {
-    .navbar a,
-    .navbar .nav-link {
-      font-size: 14px;
-      padding: 8px 10px;
-    }
-
-    .scroll-indicator {
-      bottom: 10px;
-    }
-
-    .navbar-collapse,
-    .navbar-nav {
-      width: 100%;
-      max-width: 100%;
-      overflow-x: hidden;
-    }
-    .navbar-collapse .navbar-nav {
-      flex-direction: column;
-    }
-    .navbar-nav .nav-link {
-      text-align: center;
-      display: block;
-      width: 100%;
-    }
-    .container-fluid {
-      padding-left: 0;
-      padding-right: 0;
-    }
-    .navbar .container-fluid {
-      width: 100%;
-    }
-    #navv {
-      width: 100%;
-      overflow-x: hidden;
-    }
-    .row {
-      margin-left: 0;
-      margin-right: 0;
-    }
-    .nav-item > .nav-link.justify-content-end {
-      text-align: center;
-      width: 100%;
-      box-sizing: border-box;
-    }
-    .collapse {
-      width: 100%;
-    }
-    .navbar, .navbar-collapse {
-      overflow: hidden;
-    }
-    .navbar-toggler {
-      margin-right: 0;
-    }
-    ul.navbar-nav, .navbar-nav li {
-      margin: 0;
-      padding: 0;
-    }
-    .navbar-nav .nav-item {
-      width: 100%;
-    }
-  }
-
-  /* Existing styles below... */
-  /* Add styles to ensure text readability over the starfield */
-  #meth, #thingsilike, #socials {
-    background-color: rgba(0, 0, 0, 0.7);
-    padding: 20px;
-    border-radius: 10px;
-    margin: 20px;
-  }
-  .navbar {
-    background-color: rgba(33, 37, 41, 0.9) !important;
-  }
-  .scroll-indicator {
-    position: fixed;
-    bottom: 20px;
-    left: 50%;
-    transform: translateX(-50%);
-    cursor: pointer;
-    text-align: center;
-    animation: bounce 2s infinite;
-    transition: opacity 0.3s ease, visibility 0.3s ease;
-  }
-  .scroll-indicator .arrow {
-    width: 0;
-    height: 0;
-    border-left: 10px solid transparent;
-    border-right: 10px solid transparent;
-    border-top: 15px solid #fff;
-    margin: 0 auto;
-  }
-  .scroll-indicator .scroll-text {
-    color: white;
-    font-size: 14px;
-    margin-top: 5px;
-  }
-  @keyframes bounce {
-    0%, 20%, 50%, 80%, 100% {
-      transform: translateX(-50%) translateY(0);
-    }
-    40% {
-      transform: translateX(-50%) translateY(-10px);
-    }
-    60% {
-      transform: translateX(-50%) translateY(-5px);
-    }
-  }
-</style>
-<script>
-document.addEventListener("DOMContentLoaded", function() {
-  const scrollIndicator = document.querySelector('.scroll-indicator');
-  const showTerminalButton = document.getElementById('show-terminal');
-  
-  // Ensure terminal button is visible
-  if (showTerminalButton) {
-    showTerminalButton.style.display = 'block';
-  }
-  
-  window.addEventListener('scroll', function(){
-    const methElement = document.getElementById('meth');
-    if(methElement) {
-      const methTop = methElement.getBoundingClientRect().top;
-      // If the top of #meth is within 80% of the viewport height, hide the indicator
-      if(methTop < window.innerHeight * 0.8) {
-        scrollIndicator.style.opacity = '0';
-        scrollIndicator.style.visibility = 'hidden';
-      } else {
-        scrollIndicator.style.opacity = '1';
-        scrollIndicator.style.visibility = 'visible';
-      }
-    } else {
-      // Fallback threshold
-      if(window.scrollY > window.innerHeight * 0.5) {
-        scrollIndicator.style.opacity = '0';
-        scrollIndicator.style.visibility = 'hidden';
-      } else {
-        scrollIndicator.style.opacity = '1';
-        scrollIndicator.style.visibility = 'visible';
-      }
-    }
-  });
-});
-</script>
-
-<div id="chat-widget" class="chat-hidden" aria-live="polite">
-  <div class="chat-header">
-    <div class="chat-title-wrap">
-      <span class="chat-title">Chat with Max's Model</span>
-      <span class="chat-status" id="chat-status">Idle</span>
-    </div>
-    <div class="chat-header-buttons">
-      <button type="button" id="chat-clear" title="Reset conversation" aria-label="Reset conversation">CLR</button>
-      <button type="button" id="chat-settings-btn" title="Open settings" aria-label="Open chat settings">SET</button>
-      <button type="button" id="chat-minimize" title="Minimize chat" aria-label="Minimize chat">MIN</button>
-      <button type="button" id="chat-close" title="Close chat" aria-label="Close chat">X</button>
-    </div>
-  </div>
-  <div class="chat-body" id="chat-body">
-    <div id="chat-messages">
-      <div class="chat-message chat-message-system">
-        Say hi to start a conversation with the Ollama model.
-      </div>
-    </div>
-    <form id="chat-form" class="chat-input-row">
-      <input type="text" id="chat-input" placeholder="Ask me anything..." autocomplete="off" spellcheck="false" aria-label="Message input">
-      <button type="submit" id="chat-send">Send</button>
-    </form>
-  </div>
-  <div id="chat-settings" class="chat-settings-panel" hidden>
-    <label>
-      API endpoint
-      <input type="text" id="chat-endpoint" value="https://sapi.getmeth.net/chat" placeholder="https://host:port/chat">
-    </label>
-    <label>
-      Model name
-      <input type="text" id="chat-model" value="gpt-oss" placeholder="ollama model name">
-    </label>
-    <label>
-      API key (optional)
-      <input type="password" id="chat-api-key" value="website" placeholder="Stored in this browser only">
-    </label>
-    <div class="chat-settings-actions">
-      <button type="button" id="chat-save-settings">Save</button>
-      <button type="button" id="chat-cancel-settings">Close</button>
-    </div>
-    <p class="chat-settings-hint">
-      Use an HTTPS endpoint when this page loads over HTTPS, otherwise browsers block the request before it hits your proxy.
-    </p>
-  </div>
-</div>
-
-<button id="open-chat" type="button" aria-label="Open chat widget">Chat with my AI</button>
-
-<style>
-#chat-widget {
-  position: fixed;
-  bottom: 20px;
-  right: 20px;
-  width: 360px;
-  max-height: 460px;
-  background: rgba(4, 5, 15, 0.96);
-  border: 1px solid rgba(130, 238, 255, 0.4);
-  border-radius: 16px;
-  box-shadow: 0 20px 45px rgba(0, 0, 0, 0.45);
-  font-family: "Space Mono", "Courier New", monospace;
-  color: #f5f6ff;
-  z-index: 1100;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  backdrop-filter: blur(8px);
-}
-
-.chat-hidden {
-  display: none !important;
-}
-
-.chat-header {
-  padding: 10px 14px;
-  background: rgba(25, 28, 54, 0.95);
-  border-bottom: 1px solid rgba(130, 238, 255, 0.2);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 10px;
-}
-
-.chat-title-wrap {
-  display: flex;
-  flex-direction: column;
-  line-height: 1.2;
-}
-
-.chat-title {
-  font-size: 15px;
-  font-weight: 600;
-}
-
-.chat-status {
-  font-size: 11px;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: #8affff;
-}
-
-.chat-status[data-state="error"] {
-  color: #ff6b6b;
-}
-
-.chat-status[data-state="busy"] {
-  color: #ffd86b;
-}
-
-.chat-header-buttons button {
-  background: rgba(0, 0, 0, 0.3);
-  color: #f5f6ff;
-  border: none;
-  border-radius: 6px;
-  width: 38px;
-  height: 30px;
-  cursor: pointer;
-  font-size: 11px;
-  letter-spacing: 0.05em;
-  transition: background 0.2s ease;
-}
-
-.chat-header-buttons button:hover {
-  background: rgba(138, 255, 255, 0.2);
-}
-
-.chat-body {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  padding: 12px 14px 14px;
-  overflow: hidden;
-  height: 100%;
-}
-
-.chat-collapsed .chat-body {
-  display: none;
-}
-
-#chat-messages {
-  flex: 1;
-  overflow-y: auto;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  padding-right: 4px;
-}
-
-.chat-message {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.chat-message-bubble {
-  padding: 10px 12px;
-  border-radius: 12px;
-  line-height: 1.4;
-  font-size: 14px;
-  white-space: pre-wrap;
-  word-break: break-word;
-}
-
-.chat-message-system .chat-message-bubble {
-  background: rgba(138, 255, 255, 0.1);
-  color: rgba(245, 246, 255, 0.8);
-}
-
-.chat-message-user .chat-message-bubble {
-  background: rgba(76, 195, 255, 0.25);
-  align-self: flex-end;
-}
-
-.chat-message-assistant .chat-message-bubble {
-  background: rgba(74, 255, 181, 0.12);
-  border: 1px solid rgba(74, 255, 181, 0.35);
-}
-
-.chat-message-role {
-  font-size: 11px;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.4);
-}
-
-.chat-input-row {
-  display: flex;
-  gap: 8px;
-}
-
-#chat-input {
-  flex: 1;
-  border: 1px solid rgba(130, 238, 255, 0.3);
-  background: rgba(10, 12, 26, 0.8);
-  color: #f5f6ff;
-  border-radius: 999px;
-  padding: 10px 16px;
-  outline: none;
-}
-
-#chat-input:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-#chat-send {
-  border: none;
-  border-radius: 999px;
-  padding: 10px 18px;
-  background: linear-gradient(120deg, #61f4de, #67a8ff);
-  color: #050609;
-  font-weight: 600;
-  cursor: pointer;
-  transition: opacity 0.2s ease;
-}
-
-#chat-send:disabled {
-  opacity: 0.55;
-  cursor: not-allowed;
-}
-
-#open-chat {
-  position: fixed;
-  bottom: 20px;
-  right: 20px;
-  border: none;
-  border-radius: 999px;
-  padding: 12px 20px;
-  background: linear-gradient(120deg, #61f4de, #67a8ff);
-  color: #050609;
-  font-weight: 700;
-  letter-spacing: 0.05em;
-  cursor: pointer;
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.35);
-  z-index: 1000;
-}
-
-.chat-settings-panel {
-  padding: 12px 14px 14px;
-  border-top: 1px solid rgba(130, 238, 255, 0.2);
-  background: rgba(5, 7, 16, 0.95);
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.chat-settings-panel label {
-  display: flex;
-  flex-direction: column;
-  font-size: 12px;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  gap: 6px;
-}
-
-.chat-settings-panel input {
-  border-radius: 8px;
-  border: 1px solid rgba(130, 238, 255, 0.3);
-  background: rgba(12, 14, 30, 0.8);
-  color: #f5f6ff;
-  padding: 8px 10px;
-  font-size: 14px;
-}
-
-.chat-settings-actions {
-  display: flex;
-  gap: 10px;
-}
-
-.chat-settings-actions button {
-  flex: 1;
-  border-radius: 8px;
-  border: none;
-  padding: 8px 10px;
-  cursor: pointer;
-  font-weight: 600;
-}
-
-#chat-save-settings {
-  background: rgba(94, 255, 198, 0.2);
-  color: #5effc6;
-  border: 1px solid rgba(94, 255, 198, 0.4);
-}
-
-#chat-cancel-settings {
-  background: rgba(255, 255, 255, 0.06);
-  color: rgba(255, 255, 255, 0.8);
-}
-
-.chat-settings-hint {
-  margin: 0;
-  font-size: 11px;
-  color: rgba(255, 255, 255, 0.4);
-}
-
-.chat-busy #chat-status {
-  animation: pulse 1.2s ease-in-out infinite;
-}
-
-@keyframes pulse {
-  0% { opacity: 0.4; }
-  50% { opacity: 1; }
-  100% { opacity: 0.4; }
-}
-
-@media (max-width: 768px) {
-  #chat-widget,
-  #open-chat {
-    right: 16px;
-    left: 16px;
-  }
-
-  #chat-widget {
-    width: auto;
-    bottom: 90px;
-    max-height: 75vh;
-  }
-
-  #open-chat {
-    width: calc(100% - 32px);
-    bottom: 12px;
-  }
-}
-</style>
-
-<script>
-const CHAT_DEFAULT_ENDPOINT = "https://sapi.getmeth.net/chat";
-const SYSTEM_PROMPT = "You are Max's friendly AI assistant. Be concise, helpful, and avoid sharing secrets.";
-const CHAT_DEFAULT_API_KEY = "website";
-const STORAGE_KEYS = {
-  model: "max-chat:model",
-  key: "max-chat:key",
-  endpoint: "max-chat:endpoint",
-};
-
-const chatWidget = document.getElementById("chat-widget");
-const openChatButton = document.getElementById("open-chat");
-const chatMessages = document.getElementById("chat-messages");
-const chatForm = document.getElementById("chat-form");
-const chatInput = document.getElementById("chat-input");
-const chatSend = document.getElementById("chat-send");
-const chatStatus = document.getElementById("chat-status");
-const chatSettingsPanel = document.getElementById("chat-settings");
-const chatEndpointInput = document.getElementById("chat-endpoint");
-const chatModelInput = document.getElementById("chat-model");
-const chatApiKeyInput = document.getElementById("chat-api-key");
-const chatCloseButton = document.getElementById("chat-close");
-const chatMinimizeButton = document.getElementById("chat-minimize");
-const chatSettingsButton = document.getElementById("chat-settings-btn");
-const chatClearButton = document.getElementById("chat-clear");
-const chatSaveSettings = document.getElementById("chat-save-settings");
-const chatCancelSettings = document.getElementById("chat-cancel-settings");
-
-let conversation = [
-  { role: "system", content: SYSTEM_PROMPT },
-];
-let busy = false;
-
-function loadSetting(key, fallback = "") {
-  try {
-    return localStorage.getItem(key) || fallback;
-  } catch (err) {
-    console.warn("Unable to read localStorage", err);
-    return fallback;
-  }
-}
-
-function saveSetting(key, value) {
-  try {
-    if (value) {
-      localStorage.setItem(key, value);
-    } else {
-      localStorage.removeItem(key);
-    }
-  } catch (err) {
-    console.warn("Unable to write localStorage", err);
-  }
-}
-
-function trimConversation(limit = 20) {
-  if (conversation.length <= limit) {
-    return;
-  }
-  const system = conversation[0];
-  conversation = [system, ...conversation.slice(conversation.length - (limit - 1))];
-}
-
-function setStatus(label, state = "idle") {
-  chatWidget.classList.toggle("chat-busy", state === "busy");
-  chatStatus.dataset.state = state;
-  chatStatus.textContent = label;
-}
-
-function sanitizeText(text) {
-  return text
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;");
-}
-
-function renderMessage(role, content) {
-  const item = document.createElement("div");
-  item.className = `chat-message chat-message-${role}`;
-
-  if (role !== "system") {
-    const roleLabel = document.createElement("span");
-    roleLabel.className = "chat-message-role";
-    roleLabel.textContent = role === "user" ? "You" : "Assistant";
-    item.appendChild(roleLabel);
-  }
-
-  const bubble = document.createElement("div");
-  bubble.className = "chat-message-bubble";
-  bubble.innerHTML = sanitizeText(content).replace(/\n/g, "<br>");
-  item.appendChild(bubble);
-  chatMessages.appendChild(item);
-  chatMessages.scrollTop = chatMessages.scrollHeight;
-}
-
-function resetConversation() {
-  conversation = [{ role: "system", content: SYSTEM_PROMPT }];
-  chatMessages.innerHTML = "";
-  const systemMsg = document.createElement("div");
-  systemMsg.className = "chat-message chat-message-system";
-  const bubble = document.createElement("div");
-  bubble.className = "chat-message-bubble";
-  bubble.textContent = "Conversation cleared. Ask something else!";
-  systemMsg.appendChild(bubble);
-  chatMessages.appendChild(systemMsg);
-  setStatus("Ready");
-}
-
-function getEndpoint() {
-  return (chatEndpointInput.value || CHAT_DEFAULT_ENDPOINT).trim();
-}
-
-async function sendToModel(message) {
-  if (busy || !message.trim()) {
-    return;
-  }
-
-  busy = true;
-  setStatus("Thinking...", "busy");
-  chatInput.disabled = true;
-  chatSend.disabled = true;
-
-  renderMessage("user", message);
-  conversation.push({ role: "user", content: message });
-  trimConversation();
-
-  const endpoint = getEndpoint();
-
-  if (window.location.protocol === "https:" && endpoint.startsWith("http://")) {
-    renderMessage(
-      "assistant",
-      "Can't call an insecure (http://) endpoint from an HTTPS page. Switch the proxy to HTTPS or open this site over HTTP."
-    );
-    setStatus("Blocked", "error");
-    busy = false;
-    chatInput.disabled = false;
-    chatSend.disabled = false;
-    return;
-  }
-
-  const payload = {
-    model: (chatModelInput.value || "gpt-oss").trim(),
-    messages: conversation,
-  };
-
-  const headers = {
-    "Content-Type": "application/json",
-  };
-
-  const apiKey = (chatApiKeyInput.value || CHAT_DEFAULT_API_KEY).trim();
-  if (apiKey) {
-    headers.Authorization = `Bearer ${apiKey}`;
-    headers["X-API-Key"] = apiKey;
-  }
-
-  try {
-    const response = await fetch(endpoint, {
-      method: "POST",
-      headers,
-      body: JSON.stringify(payload),
-    });
-
-    if (!response.ok) {
-      throw new Error(`API returned ${response.status}`);
-    }
-
-    const data = await response.json();
-    const assistantContent = data?.message?.content;
-    if (!assistantContent) {
-      throw new Error("No message returned by model");
-    }
-
-    renderMessage("assistant", assistantContent);
-    conversation.push({ role: "assistant", content: assistantContent });
-    trimConversation();
-    setStatus("Ready");
-  } catch (error) {
-    console.error("Chat error", error);
-    renderMessage("assistant", `Something went wrong: ${error.message}`);
-    setStatus("Error", "error");
-  } finally {
-    busy = false;
-    chatInput.disabled = false;
-    chatSend.disabled = false;
-    chatInput.focus();
-  }
-}
-
-openChatButton.addEventListener("click", () => {
-  chatWidget.classList.remove("chat-hidden");
-  openChatButton.classList.add("chat-hidden");
-  chatInput.focus();
-});
-
-chatCloseButton.addEventListener("click", () => {
-  chatWidget.classList.add("chat-hidden");
-  openChatButton.classList.remove("chat-hidden");
-});
-
-chatMinimizeButton.addEventListener("click", () => {
-  chatWidget.classList.toggle("chat-collapsed");
-});
-
-chatSettingsButton.addEventListener("click", () => {
-  if (chatSettingsPanel.hasAttribute("hidden")) {
-    chatSettingsPanel.removeAttribute("hidden");
-  } else {
-    chatSettingsPanel.setAttribute("hidden", "hidden");
-  }
-});
-
-chatSaveSettings.addEventListener("click", () => {
-  saveSetting(STORAGE_KEYS.model, chatModelInput.value.trim());
-  saveSetting(STORAGE_KEYS.key, chatApiKeyInput.value.trim());
-  saveSetting(STORAGE_KEYS.endpoint, chatEndpointInput.value.trim());
-  chatSettingsPanel.setAttribute("hidden", "hidden");
-});
-
-chatCancelSettings.addEventListener("click", () => {
-  chatSettingsPanel.setAttribute("hidden", "hidden");
-  chatModelInput.value = loadSetting(STORAGE_KEYS.model, chatModelInput.value);
-  chatApiKeyInput.value = loadSetting(STORAGE_KEYS.key, CHAT_DEFAULT_API_KEY);
-  chatEndpointInput.value = loadSetting(
-    STORAGE_KEYS.endpoint,
-    chatEndpointInput.value || CHAT_DEFAULT_ENDPOINT
-  );
-});
-
-chatClearButton.addEventListener("click", resetConversation);
-
-chatForm.addEventListener("submit", (event) => {
-  event.preventDefault();
-  const message = chatInput.value.trim();
-  chatInput.value = "";
-  sendToModel(message);
-});
-
-chatInput.addEventListener("keydown", (event) => {
-  if (event.key === "Enter" && !event.shiftKey) {
-    event.preventDefault();
-    chatForm.requestSubmit();
-  }
-});
-
-window.addEventListener("DOMContentLoaded", () => {
-  const savedModel = loadSetting(STORAGE_KEYS.model);
-  if (savedModel) {
-    chatModelInput.value = savedModel;
-  }
-  const savedKey = loadSetting(STORAGE_KEYS.key, CHAT_DEFAULT_API_KEY);
-  chatApiKeyInput.value = savedKey || CHAT_DEFAULT_API_KEY;
-  const savedEndpoint = loadSetting(STORAGE_KEYS.endpoint, CHAT_DEFAULT_ENDPOINT);
-  chatEndpointInput.value = savedEndpoint || CHAT_DEFAULT_ENDPOINT;
-  setStatus("Ready");
-});
-</script>
-
-</body>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Max Aitel</title>
+    <meta
+      name="description"
+      content="Personal website for Max Aitel, based in Christchurch and building calm, thoughtful digital tools."
+    />
+    <meta name="theme-color" content="#f5f2ee" />
+    <meta property="og:title" content="Max Aitel" />
+    <meta
+      property="og:description"
+      content="Christchurch-based engineer building calm, thoughtful digital tools."
+    />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://maxaitel.org/" />
+    <link rel="canonical" href="https://maxaitel.org/" />
+    <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+
+    <header class="site-header">
+      <a class="site-mark" href="#main" aria-label="Max Aitel — home">Max Aitel</a>
+      <nav class="site-nav" aria-label="Primary">
+        <a href="#about">about</a>
+        <a href="#experience">experience</a>
+        <a href="#notes">notes</a>
+        <a href="#contact">contact</a>
+      </nav>
+    </header>
+
+    <main id="main">
+      <section class="hero section">
+        <div class="hero-copy reveal">
+          <p class="eyebrow">Personal site</p>
+          <h1>
+            <span>Hi, I’m</span>
+            <span>Max Aitel.</span>
+          </h1>
+          <p class="hero-text">
+            Engineer based in Christchurch, New Zealand, building calm,
+            thoughtful tools for the internet.
+          </p>
+          <div class="hero-actions">
+            <a class="text-link" href="#experience">View work</a>
+            <a class="text-link muted-link" href="https://github.com/maxaitel" target="_blank" rel="noreferrer">GitHub</a>
+          </div>
+        </div>
+
+        <div class="hero-art reveal" aria-hidden="true">
+          <div class="braille-card">
+            <div class="braille-grid" id="braille-grid"></div>
+          </div>
+        </div>
+
+        <a class="scroll-prompt" href="#about">scroll</a>
+      </section>
+
+      <section id="about" class="section">
+        <div class="section-title reveal">
+          <h2>About</h2>
+        </div>
+        <div class="section-content reveal">
+          <p class="lead">
+            I like building software that feels clear, measured, and useful.
+            My work sits somewhere between engineering, interfaces, and systems.
+          </p>
+          <p>
+            Publicly, I’m based in Christchurch and currently at OpenAI. Outside
+            of work, I keep returning to robotics, planes, small web projects,
+            and mentoring the Miami Beach Bots FRC team.
+          </p>
+          <a class="text-link" href="https://miamibeachbots.org" target="_blank" rel="noreferrer">
+            More about the team
+          </a>
+        </div>
+      </section>
+
+      <section id="experience" class="section">
+        <div class="section-title reveal">
+          <h2>Experience</h2>
+        </div>
+        <div class="section-content reveal">
+          <div class="experience-list">
+            <article class="experience-item">
+              <div class="experience-main">
+                <h3>Codex Ambassador</h3>
+                <p class="role">OpenAI · Part-time</p>
+                <p class="experience-detail">
+                  Christchurch, Canterbury, New Zealand · Remote
+                </p>
+              </div>
+              <p class="date">Apr 2026 - Present</p>
+            </article>
+
+            <article class="experience-item">
+              <div class="experience-main">
+                <h3>Business Team</h3>
+                <p class="role">UCM - University of Canterbury Motorsport · Part-time</p>
+                <p class="experience-detail">
+                  Christchurch, Canterbury, New Zealand · Hybrid
+                </p>
+              </div>
+              <p class="date">Jan 2026 - Present</p>
+            </article>
+
+            <article class="experience-item">
+              <div class="experience-main">
+                <h3>Student</h3>
+                <p class="role">University of Canterbury · Full-time</p>
+                <p class="experience-detail">
+                  Christchurch, Canterbury, New Zealand · On-site
+                </p>
+              </div>
+              <p class="date">Feb 2025 - Present</p>
+            </article>
+
+            <article class="experience-item">
+              <div class="experience-main">
+                <h3>Intern</h3>
+                <p class="role">Red Balloon Security, Inc. · Internship</p>
+                <p class="experience-detail">
+                  New York City Metropolitan Area · On-site
+                </p>
+              </div>
+              <p class="date">Aug 2024 - Dec 2024</p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section id="notes" class="section">
+        <div class="section-title reveal">
+          <h2>Notes</h2>
+        </div>
+        <div class="section-content reveal">
+          <div class="notes-grid">
+            <article class="note-card">
+              <p class="note-meta">Draft</p>
+              <h3>Quiet interfaces</h3>
+              <p>
+                Why software feels better when motion, type, and feedback stop
+                trying so hard.
+              </p>
+            </article>
+
+            <article class="note-card">
+              <p class="note-meta">Draft</p>
+              <h3>Small tools, fast loops</h3>
+              <p>
+                On building utilities that stay lightweight, legible, and easy
+                to trust.
+              </p>
+            </article>
+
+            <article class="note-card">
+              <p class="note-meta">Draft</p>
+              <h3>Robots, systems, feedback</h3>
+              <p>
+                Lessons that keep showing up everywhere, from mentorship to
+                product work.
+              </p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section id="contact" class="section section-contact">
+        <div class="section-title reveal">
+          <h2>Let’s connect.</h2>
+        </div>
+        <div class="section-content reveal">
+          <p class="lead">
+            The easiest way to find my work is through the places I already keep
+            public.
+          </p>
+          <div class="contact-links">
+            <a href="https://github.com/maxaitel" target="_blank" rel="noreferrer">GitHub</a>
+            <a href="https://www.linkedin.com/in/max-aitel-b09498220/" target="_blank" rel="noreferrer">LinkedIn</a>
+            <a href="https://x.com/aitelmax?lang=en" target="_blank" rel="noreferrer">X</a>
+            <a href="https://miamibeachbots.org" target="_blank" rel="noreferrer">Miami Beach Bots</a>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <p>© <span id="year"></span> Max Aitel</p>
+      <a href="#main">Back to top</a>
+    </footer>
+
+    <script src="./script.js"></script>
+  </body>
 </html>
