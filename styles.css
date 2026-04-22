@@ -454,13 +454,14 @@ h3 {
   }
 
   .hero-copy {
-    max-width: 100%;
+    max-width: 19rem;
   }
 
   .hero h1 {
     max-width: none;
-    font-size: clamp(3rem, 18vw, 4.35rem);
-    line-height: 0.96;
+    font-size: clamp(2.9rem, 15vw, 4.1rem);
+    line-height: 0.94;
+    letter-spacing: -0.06em;
   }
 
   .hero-text {
