@@ -351,9 +351,9 @@ h3 {
 
 .contact-links {
   display: grid;
-  grid-template-columns: repeat(3, max-content);
+  grid-template-columns: repeat(4, max-content);
   gap: 0.7rem 1.75rem;
-  max-width: 34rem;
+  max-width: none;
   align-items: start;
   justify-content: start;
 }
