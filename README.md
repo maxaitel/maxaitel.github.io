@@ -17,14 +17,14 @@ Then open the local Vite URL printed in the terminal.
 npm run build
 ```
 
-The production output is written to `dist/`.
+The production output is written to `docs/`.
 
 ## Deploy on GitHub Pages
 
-Push to `main` and GitHub Actions will build and deploy the site to GitHub Pages.
+Push to `main` and GitHub Pages serves the prebuilt files from `docs/`.
 
 The custom domain file lives in `public/CNAME` and is copied into the build output.
-`public/.nojekyll` is also copied into the build output for GitHub Pages compatibility.
+`public/.nojekyll` is also copied into the build output so Pages serves the static output directly.
 
 ## Stack
 
