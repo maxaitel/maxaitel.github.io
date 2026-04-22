@@ -164,7 +164,7 @@ h3 {
 
 .hero-copy {
   grid-area: copy;
-  max-width: 40rem;
+  max-width: 36rem;
   justify-self: center;
   text-align: center;
 }
@@ -172,7 +172,7 @@ h3 {
 .hero h1 {
   font-size: clamp(3.8rem, 8.4vw, 6.4rem);
   line-height: 0.92;
-  letter-spacing: -0.08em;
+  letter-spacing: -0.065em;
   margin-top: 0.5rem;
 }
 
