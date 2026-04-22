@@ -26,6 +26,14 @@ const experienceItems = [
     date: "Feb 2025 - Present",
   },
   {
+    title: "Mentor",
+    company: "Miami Beach Bots - FRC 7652",
+    companyUrl: "https://miamibeachbots.org/",
+    type: "Volunteer",
+    location: "Miami Beach, Florida, United States",
+    date: "May 2024 - Present",
+  },
+  {
     title: "Intern",
     company: "Red Balloon Security, Inc.",
     companyUrl: "https://redballoonsecurity.com/",
