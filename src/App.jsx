@@ -18,7 +18,7 @@ const experienceItems = [
     date: "Jan 2026 - Present",
   },
   {
-    title: "Student",
+    title: "Computer Science Student",
     company: "University of Canterbury",
     companyUrl: "https://www.canterbury.ac.nz/",
     type: "Full-time",
@@ -142,16 +142,7 @@ export default function App() {
             <p>
               Publicly, I’m based in Christchurch and currently studying
               computer science at the University of Canterbury. Outside of work,
-              I keep returning to robotics, planes, AI, and mentoring the{" "}
-              <a
-                className="inline-link"
-                href="https://miamibeachbots.org"
-                target="_blank"
-                rel="noreferrer"
-              >
-                Miami Beach Bots
-              </a>{" "}
-              FRC team.
+              I keep returning to robotics, planes, and AI.
             </p>
           </div>
         </section>
