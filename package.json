@@ -20,6 +20,7 @@
   },
   "homepage": "https://github.com/maxaitel/maxaitel.github.io#readme",
   "dependencies": {
+    "@paper-design/shaders-react": "^0.0.76",
     "react": "^19.2.5",
     "react-dom": "^19.2.5"
   },

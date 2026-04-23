@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import { GemSmoke } from "@paper-design/shaders-react";
 
 const experienceItems = [
   {
@@ -62,6 +63,30 @@ const contactLinks = [
   },
 ];
 
+function HeroNameShader() {
+  return (
+    <span className="hero-name" aria-hidden="true">
+      <GemSmoke
+        speed={1}
+        size={0.8}
+        outerDistortion={0.6}
+        innerDistortion={0.8}
+        outerGlow={0.55}
+        innerGlow={1}
+        offset={0}
+        scale={0.6}
+        angle={0}
+        shape="none"
+        frame={13457.4}
+        colors={["#FF0005"]}
+        colorInner="#000000"
+        colorBack="#00000000"
+        className="hero-name-shader"
+      />
+    </span>
+  );
+}
+
 function useRevealOnScroll() {
   useEffect(() => {
     const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -118,7 +143,8 @@ export default function App() {
           <div className="hero-copy reveal">
             <h1>
               <span>hi, i’m</span>
-              <span>max aitel</span>
+              <HeroNameShader />
+              <span className="sr-only">max aitel</span>
             </h1>
             <p className="hero-text">christchurch-based student</p>
             <div className="hero-actions">

@@ -185,6 +185,50 @@ h3 {
   display: block;
 }
 
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.hero-name {
+  --hero-name-width: 430px;
+  --hero-name-height: 106px;
+  --hero-name-mask-width: 430px;
+  --hero-name-mask-height: 106px;
+  --hero-name-mask-x: 166px;
+  --hero-name-mask-y: 214px;
+  --hero-name-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='430' height='106' viewBox='0 0 430 106'%3E%3Ctext x='215' y='86' text-anchor='middle' font-family='Inter, Arial, sans-serif' font-size='92' font-weight='800'%3Emax aitel%3C/text%3E%3C/svg%3E");
+
+  position: relative;
+  width: var(--hero-name-width);
+  height: var(--hero-name-height);
+  margin-inline: auto;
+  overflow: clip;
+}
+
+.hero-name-shader {
+  position: absolute;
+  left: calc(var(--hero-name-mask-x) * -1);
+  top: calc(var(--hero-name-mask-y) * -1);
+  width: 800px;
+  height: 600px;
+  background-color: #f0efea;
+  -webkit-mask-image: var(--hero-name-mask);
+  mask-image: var(--hero-name-mask);
+  -webkit-mask-position: var(--hero-name-mask-x) var(--hero-name-mask-y);
+  mask-position: var(--hero-name-mask-x) var(--hero-name-mask-y);
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-size: var(--hero-name-mask-width) var(--hero-name-mask-height);
+  mask-size: var(--hero-name-mask-width) var(--hero-name-mask-height);
+}
+
 .hero-text,
 .lead,
 .section-content p,
@@ -487,6 +531,14 @@ h3 {
     font-size: clamp(2.9rem, 15vw, 4.1rem);
     line-height: 0.94;
     letter-spacing: -0.06em;
+  }
+
+  .hero-name {
+    --hero-name-width: 262px;
+    --hero-name-height: 65px;
+    --hero-name-mask-width: 262px;
+    --hero-name-mask-height: 65px;
+    --hero-name-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='262' height='65' viewBox='0 0 262 65'%3E%3Ctext x='131' y='53' text-anchor='middle' font-family='Inter, Arial, sans-serif' font-size='56' font-weight='800'%3Emax aitel%3C/text%3E%3C/svg%3E");
   }
 
   .hero-text {
