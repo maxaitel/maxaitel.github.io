@@ -31,3 +31,9 @@ The custom domain file lives in `public/CNAME` and is copied into the build outp
 - Vite
 - React
 - Tailwind CSS
+
+## Visual assets
+
+The ASCII masthead is actual text in `src/App.jsx`. The local IBM Plex Mono font
+and MOS 6502 die photograph are in `public/assets`; attribution and license links
+are retained in `public/assets/ATTRIBUTION.txt`.

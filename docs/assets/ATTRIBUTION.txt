@@ -1,0 +1,11 @@
+MOS 6502 die photograph
+Author: Pauli Rautakorpi
+Source: https://commons.wikimedia.org/wiki/File:MOS_6502_die.jpg
+License: Creative Commons Attribution 3.0 Unported
+https://creativecommons.org/licenses/by/3.0/
+Changes: resized derivative; displayed cropped, desaturated, and darkened with CSS.
+
+IBM Plex Mono font
+Copyright IBM Corp. All rights reserved.
+License: SIL Open Font License 1.1
+https://github.com/IBM/plex/blob/master/LICENSE.txt
