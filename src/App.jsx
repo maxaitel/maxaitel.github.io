@@ -65,11 +65,6 @@ export default function App() {
             <pre className="word-first">{masthead[0]}</pre>
             <pre className="word-second">{masthead[1]}</pre>
           </div>
-          <nav aria-label="Main navigation">
-            <a href="#about">about</a>
-            <a href="#experience">experience</a>
-            <a href="#contact">contact</a>
-          </nav>
         </section>
         <section id="about" className="about section" aria-labelledby="about-title">
           <h2 id="about-title">about</h2>
