@@ -13,20 +13,17 @@ const experienceItems = [
     date: "Apr 2026 — Present",
   },
   {
-    title: "Software Engineer",
-    company: "LODG",
-    companyUrl: "https://lodg.co.nz/",
-    type: "Part-time",
-    location: "Christchurch, Canterbury, New Zealand · Remote",
-    date: "May 2026 — Present",
-  },
-  {
     title: "Business Team",
     company: "UCM - University of Canterbury Motorsport",
     companyUrl: "https://www.ucmotorsport.com/",
     type: "Part-time",
     location: "Christchurch, Canterbury, New Zealand · Hybrid",
     date: "Jan 2026 — Present",
+  },
+  {
+    title: "Founder",
+    company: "Aitel Research",
+    date: "Oct 2026 — Present",
   },
   {
     title: "Computer Science Student",
@@ -45,12 +42,43 @@ const experienceItems = [
     date: "May 2024 — Present",
   },
   {
+    title: "Software Engineer",
+    company: "LODG",
+    companyUrl: "https://lodg.co.nz/",
+    type: "Contract",
+    location: "Christchurch, Canterbury, New Zealand · Remote",
+    date: "May 2026 — Oct 2026",
+  },
+  {
     title: "Intern",
     company: "Red Balloon Security, Inc.",
     companyUrl: "https://redballoonsecurity.com/",
     type: "Internship",
     location: "New York City Metropolitan Area · On-site",
     date: "Aug 2024 — Dec 2024",
+  },
+  {
+    title: "Instructor",
+    company: "Miami Youth Sailing",
+    type: "Part-time",
+    location: "Miami Beach, Florida, United States · On-site",
+    date: "Jun 2020 — Jul 2024",
+  },
+  {
+    title: "Intern",
+    company: "Red Balloon Security, Inc.",
+    companyUrl: "https://redballoonsecurity.com/",
+    type: "Internship",
+    location: "New York City Metropolitan Area · On-site",
+    date: "May 2023 — Aug 2023",
+  },
+  {
+    title: "Intern",
+    company: "Red Balloon Security, Inc.",
+    companyUrl: "https://redballoonsecurity.com/",
+    type: "Internship",
+    location: "New York City Metropolitan Area · On-site",
+    date: "Jul 2022 — Aug 2022",
   },
 ];
 
@@ -69,7 +97,7 @@ export default function App() {
         <section id="about" className="about section" aria-labelledby="about-title">
           <h2 id="about-title">about</h2>
           <div className="about-copy">
-            <p>I'm Max Aitel. I study computer science at the University of Canterbury in Christchurch. Outside of work: robotics, planes, and AI.</p>
+            <p>I'm Max Aitel, a Codex Ambassador in Christchurch and founder of Aitel Research. I study computer science at the University of Canterbury. Outside of work: robotics, planes, and AI.</p>
           </div>
         </section>
         <section id="experience" className="experience section" aria-labelledby="experience-title">
@@ -79,13 +107,26 @@ export default function App() {
               <article className="role" key={`${item.title}-${item.date}`}>
                 <h3>{item.title}</h3>
                 <p className="organization">
-                  <a href={item.companyUrl} target="_blank" rel="noopener noreferrer">{item.company}</a>
+                  {item.companyUrl ? (
+                    <a href={item.companyUrl} target="_blank" rel="noopener noreferrer">{item.company}</a>
+                  ) : item.company}
                 </p>
                 <p className="period">{item.date}</p>
-                <p className="role-detail">{item.type} / {item.location}</p>
+                {(item.type || item.location) && (
+                  <p className="role-detail">{[item.type, item.location].filter(Boolean).join(" / ")}</p>
+                )}
               </article>
             ))}
           </div>
+        </section>
+        <section id="education" className="section" aria-labelledby="education-title">
+          <h2 id="education-title">education</h2>
+          <article className="role">
+            <h3>High School Diploma</h3>
+            <p className="organization">Miami Beach Senior High School</p>
+            <p className="period">Aug 2020 — May 2024</p>
+            <p className="role-detail">Student lead and main driver of FIRST Robotics Competition team 7652: MiamiBeachBots.</p>
+          </article>
         </section>
         <section id="contact" className="contact section" aria-labelledby="contact-title">
           <h2 id="contact-title">contact</h2>
