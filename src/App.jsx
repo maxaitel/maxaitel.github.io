@@ -53,9 +53,9 @@ const experienceItems = [
     title: "Intern",
     company: "Red Balloon Security, Inc.",
     companyUrl: "https://redballoonsecurity.com/",
-    type: "Internship",
+    type: "Internships: Jul–Aug 2022; May–Aug 2023; Aug–Dec 2024",
     location: "New York City Metropolitan Area · On-site",
-    date: "Aug 2024 — Dec 2024",
+    date: "2022 — 2024",
   },
   {
     title: "Instructor",
@@ -63,22 +63,6 @@ const experienceItems = [
     type: "Part-time",
     location: "Miami Beach, Florida, United States · On-site",
     date: "Jun 2020 — Jul 2024",
-  },
-  {
-    title: "Intern",
-    company: "Red Balloon Security, Inc.",
-    companyUrl: "https://redballoonsecurity.com/",
-    type: "Internship",
-    location: "New York City Metropolitan Area · On-site",
-    date: "May 2023 — Aug 2023",
-  },
-  {
-    title: "Intern",
-    company: "Red Balloon Security, Inc.",
-    companyUrl: "https://redballoonsecurity.com/",
-    type: "Internship",
-    location: "New York City Metropolitan Area · On-site",
-    date: "Jul 2022 — Aug 2022",
   },
 ];
 
